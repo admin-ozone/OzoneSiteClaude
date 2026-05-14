@@ -84,7 +84,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       // Attach role and id to the session so client components can access them
       if (session.user) {
         session.user.id   = user.id;
-        // @ts-expect-error — role is a custom field added to our User model
         session.user.role = user.role;
       }
       return session;
