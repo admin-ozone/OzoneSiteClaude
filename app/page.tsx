@@ -14,438 +14,597 @@
  * ─────────────────────────────────────────────────────────────────────────────
  */
 
-import { Suspense } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { Navigation } from '@/components/Navigation';
 import { OzoneTerminal } from '@/components/terminal/OzoneTerminal';
 import { cn } from '@/lib/utils';
 
-// ─── Static data ──────────────────────────────────────────────────────────────
-
-const STATS = [
-  { value: '9',    label: 'LLM Models',      sub: 'in fallback chain'    },
-  { value: '$0',   label: 'LLM Cost',         sub: 'free-tier architecture'},
-  { value: '3',    label: 'Languages',         sub: 'EN · Roman Urdu · UR' },
-  { value: '99.9', label: 'Uptime',            sub: 'multi-provider failover'},
-];
+// ─── Data ──────────────────────────────────────────────────────────────────────
 
 const SERVICES = [
   {
-    id:    'assistant',
-    tag:   '01 — ASSISTANT FORGE',
-    title: 'AI Assistants that speak your customers\'s language',
-    body:  'WhatsApp bots, web widgets, and agentic workflows. RAG-powered knowledge bases. Trilingual by default: English, Roman Urdu, Urdu. Powered by a 9-model fallback chain that costs you $0.',
-    span:  'col-span-2',
-    items: ['RAG Knowledge Base', 'WhatsApp Business API', 'Multilingual (EN/UR)', '9-Model Fallback Chain'],
-    accent: '#00E5FF',
+    id:       'assistant',
+    index:    '01',
+    title:    'Assistant Forge',
+    tagline:  'AI that speaks your customer\'s language',
+    desc:     'Custom AI assistants built on RAG pipelines and agentic workflows. Deployed on WhatsApp Business, web widgets, and Telegram. Fully trilingual — English, Roman Urdu, Urdu — because your market deserves it.',
+    tags:     ['Gemini 2.0', 'RAG', 'WhatsApp API', 'Agentic', 'Trilingual'],
+    large:    true,
   },
   {
-    id:    'bots',
-    tag:   '02 — BOT INFRASTRUCTURE',
-    title: 'Automation that scales silently',
-    body:  'Browser automation, proxy rotation, stealth fingerprinting. We build the infrastructure layer that your competitors can\'t see.',
-    span:  'col-span-1',
-    items: ['Puppeteer / Playwright', 'Proxy Rotation', 'Stealth Fingerprinting'],
-    accent: '#00FF88',
+    id:       'bots',
+    index:    '02',
+    title:    'Bot Infrastructure',
+    tagline:  'Automation at production scale',
+    desc:     'WhatsApp automation, Puppeteer browser bots, proxy rotation, and stealth fingerprinting. Custom webhook architecture that doesn\'t break.',
+    tags:     ['whatsapp-web.js', 'Puppeteer', 'p-queue', 'Proxy'],
+    large:    false,
   },
   {
-    id:    'web',
-    tag:   '03 — WEB & APP LAB',
-    title: 'Production apps that ship on time',
-    body:  'Next.js 15, React Native, Progressive Web Apps. Supabase backend, NextAuth.js, edge-deployed APIs.',
-    span:  'col-span-1',
-    items: ['Next.js 15 App Router', 'React Native', 'Supabase + Prisma'],
-    accent: '#FFB800',
+    id:       'web',
+    index:    '03',
+    title:    'Web & App Lab',
+    tagline:  'Full-stack, shipped fast',
+    desc:     'Next.js 15 applications, React Native mobile apps, Progressive Web Apps. PostgreSQL via Supabase. Auth that just works.',
+    tags:     ['Next.js 15', 'React Native', 'Supabase', 'NextAuth v5'],
+    large:    false,
   },
   {
-    id:    'games',
-    tag:   '04 — GAME LAB',
-    title: 'Interactive experiences',
-    body:  'WebGL and Three.js games, browser-based 2D/3D applications, and interactive product showcases.',
-    span:  'col-span-1',
-    items: ['Three.js / WebGL', 'Browser 2D/3D', 'Interactive Showcases'],
-    accent: '#FF3D57',
+    id:       'games',
+    index:    '04',
+    title:    'Game Lab',
+    tagline:  'Interactive experiences in the browser',
+    desc:     'WebGL games, Three.js 3D environments, browser-based 2D/3D applications. From concept to playable product.',
+    tags:     ['WebGL', 'Three.js', 'React Three Fiber'],
+    large:    false,
   },
-];
+] as const;
+
+const STATS = [
+  { value: '9',    suffix: '+',  label: 'AI Models'        },
+  { value: '3',    suffix: '',   label: 'Languages'         },
+  { value: '$0',   suffix: '',   label: 'LLM Cost at Scale' },
+  { value: '99.9', suffix: '%',  label: 'Uptime SLA'        },
+] as const;
+
+const PROCESS = [
+  {
+    step:  '01',
+    title: 'Scope & Spec',
+    desc:  'We map your requirements with ruthless precision. Fixed deliverables, fixed timelines, zero upsells. You know exactly what you\'re getting before we write a line of code.',
+  },
+  {
+    step:  '02',
+    title: 'Build in Public',
+    desc:  'Production-grade code from day one. You see progress every 48 hours — live demos, not status updates. We move fast without cutting corners.',
+  },
+  {
+    step:  '03',
+    title: 'Deploy & Hand Off',
+    desc:  'Live on Vercel, DigitalOcean, or your infra. Full documentation, source access, no black boxes. You own everything we build.',
+  },
+] as const;
 
 const STACK = [
-  { name: 'Next.js 15',    category: 'Frontend'  },
-  { name: 'React 19',      category: 'Frontend'  },
-  { name: 'Tailwind CSS',  category: 'Frontend'  },
-  { name: 'Framer Motion', category: 'Frontend'  },
-  { name: 'Node.js',       category: 'Backend'   },
-  { name: 'Prisma ORM',    category: 'Backend'   },
-  { name: 'PostgreSQL',    category: 'Database'  },
-  { name: 'Supabase',      category: 'Database'  },
-  { name: 'Gemini 2.0',    category: 'AI/ML'     },
-  { name: 'Groq Llama',    category: 'AI/ML'     },
-  { name: 'OpenRouter',    category: 'AI/ML'     },
-  { name: 'NextAuth.js',   category: 'Auth'      },
-  { name: 'TypeScript',    category: 'Language'  },
-  { name: 'Vercel Edge',   category: 'Infra'     },
-  { name: 'Puppeteer',     category: 'Automation'},
-  { name: 'whatsapp-web',  category: 'Messaging' },
-];
+  'Next.js 15', 'React 19', 'TypeScript', 'Tailwind 4',
+  'Gemini 2.0', 'Groq Llama', 'OpenRouter',
+  'Prisma ORM', 'Supabase', 'Vercel',
+  'WhatsApp API', 'Puppeteer',
+  'Three.js', 'WebGL', 'React Native',
+] as const;
 
-const WORK = [
-  {
-    client: 'La Forza Gyms',
-    type:   'AI Assistant',
-    desc:   'WhatsApp AI assistant for a premium fitness gym in Bahria Town Lahore. Handles membership inquiries, lead capture, and booking — trilingual, 24/7.',
-    tags:   ['WhatsApp Bot', 'Gemini API', 'Lead Capture', 'Roman Urdu'],
-    status: 'Live',
-  },
-  {
-    client: 'DHA Realty',
-    type:   'AI Assistant',
-    desc:   'Property enquiry bot for a real estate agency in DHA Lahore. Qualifies buyers, captures leads, and handles 200+ daily inquiries autonomously.',
-    tags:   ['WhatsApp Bot', 'RAG', 'Property Tech', 'Fallback Chain'],
-    status: 'Live',
-  },
-  {
-    client: 'Modular Bot Framework',
-    type:   'Infrastructure',
-    desc:   'Multi-tenant bot framework: one engine powering unlimited clients. SQLite memory, p-queue rate limiting, dashboard with live WebSocket monitoring.',
-    tags:   ['Node.js', 'SQLite', 'WebSocket', 'Multi-tenant'],
-    status: 'Internal',
-  },
-];
+// ─── Helpers ───────────────────────────────────────────────────────────────────
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
+/** Intersection-Observer hook — fires once when element enters viewport */
+function useInView(threshold = 0.15) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([e]) => { if (e.isIntersecting) { setVisible(true); obs.disconnect(); } },
+      { threshold }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [threshold]);
+
+  return { ref, visible };
+}
+
+// ─── Sub-Components ────────────────────────────────────────────────────────────
+
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="flex items-center gap-3 mb-6">
+      <span className="h-px w-8 bg-oz-cyan/50" />
+      <span className="font-mono text-xs text-oz-cyan tracking-[0.2em] uppercase">{children}</span>
+    </div>
+  );
+}
+
+function ServiceCard({ svc, delay = 0 }: { svc: typeof SERVICES[number]; delay?: number }) {
+  const { ref, visible } = useInView();
+
+  return (
+    <div
+      ref={ref}
+      className={cn(
+        'group relative border border-oz-border bg-oz-surface rounded-sm overflow-hidden',
+        'transition-all duration-500',
+        'hover:border-oz-cyan/30 hover:shadow-[0_0_40px_rgba(0,229,255,0.07)]',
+        svc.large ? 'col-span-2 row-span-2' : 'col-span-1',
+        visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8',
+      )}
+      style={{ transitionDelay: visible ? `${delay}ms` : '0ms' }}
+    >
+      {/* Top accent line */}
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-oz-cyan/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+      {/* Hover glow */}
+      <div className="absolute inset-0 bg-gradient-to-br from-oz-cyan/[0.03] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+
+      <div className={cn('relative z-10 flex flex-col h-full', svc.large ? 'p-10 gap-6' : 'p-7 gap-4')}>
+        {/* Index */}
+        <div className="flex items-center justify-between">
+          <span className="font-mono text-xs text-oz-text-3 tracking-widest">{svc.index}</span>
+          {/* Animated corner bracket */}
+          <svg width="20" height="20" viewBox="0 0 20 20" className="text-oz-text-3/30 group-hover:text-oz-cyan/50 transition-colors duration-300">
+            <path d="M14 2h4v4M6 18H2v-4" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
+          </svg>
+        </div>
+
+        {/* Title */}
+        <div>
+          <h3 className={cn(
+            'font-display font-bold text-oz-text tracking-tight leading-none mb-2',
+            svc.large ? 'text-4xl' : 'text-2xl'
+          )}>
+            {svc.title}
+          </h3>
+          <p className={cn(
+            'font-mono text-oz-cyan',
+            svc.large ? 'text-sm' : 'text-xs'
+          )}>
+            {svc.tagline}
+          </p>
+        </div>
+
+        {/* Description */}
+        <p className={cn(
+          'text-oz-text-2 leading-relaxed flex-1',
+          svc.large ? 'text-base max-w-lg' : 'text-sm'
+        )}>
+          {svc.desc}
+        </p>
+
+        {/* Tags */}
+        <div className="flex flex-wrap gap-2 mt-auto">
+          {svc.tags.map((tag) => (
+            <span
+              key={tag}
+              className="font-mono text-2xs px-2.5 py-1 border border-oz-border-2 text-oz-text-3 rounded-sm tracking-wider group-hover:border-oz-cyan/20 group-hover:text-oz-text-2 transition-colors duration-300"
+            >
+              {tag}
+            </span>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Page ──────────────────────────────────────────────────────────────────────
 
 export default function HomePage() {
+  const [mounted, setMounted] = useState(false);
+  const heroRef = useRef<HTMLDivElement>(null);
+  const statsView = useInView(0.2);
+  const processView = useInView(0.1);
+
+  useEffect(() => { setMounted(true); }, []);
+
   return (
     <>
       <Navigation />
 
-      <main className="bg-oz-black text-oz-text overflow-x-hidden">
+      <main className="bg-oz-black overflow-x-hidden">
 
         {/* ── HERO ─────────────────────────────────────────────────────────── */}
-        <section className="relative min-h-screen flex flex-col justify-center pt-16">
+        <section
+          ref={heroRef}
+          className="relative min-h-screen flex flex-col justify-center pt-24 pb-16 overflow-hidden"
+        >
           {/* Grid background */}
-          <div className="absolute inset-0 bg-grid opacity-30 pointer-events-none" />
-          {/* Radial glow from bottom-left */}
-          <div className="absolute inset-0 pointer-events-none"
-            style={{ background: 'radial-gradient(ellipse 60% 50% at 10% 90%, rgba(0,229,255,0.06) 0%, transparent 70%)' }} />
+          <div className="absolute inset-0 bg-grid opacity-40 pointer-events-none" />
+
+          {/* Radial fade — brighter at top */}
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background:
+                'radial-gradient(ellipse 80% 60% at 50% -10%, rgba(0,229,255,0.07) 0%, transparent 70%)',
+            }}
+          />
 
           <div className="relative z-10 max-w-7xl mx-auto px-6 w-full">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center py-20 lg:py-0 min-h-[calc(100vh-64px)]">
+            <div className="grid lg:grid-cols-2 gap-16 items-center">
 
-              {/* Left: Copy */}
-              <div className="flex flex-col justify-center">
+              {/* Left — copy */}
+              <div>
                 {/* Eyebrow */}
-                <div className="flex items-center gap-3 mb-8">
-                  <span className="h-px w-6 bg-oz-cyan" />
-                  <span className="font-mono text-xs text-oz-cyan tracking-[0.25em] uppercase">
-                    Ozone Labs — Lahore, Pakistan
+                <div
+                  className="inline-flex items-center gap-2 border border-oz-border bg-oz-surface rounded-sm px-4 py-2 mb-10"
+                  style={{ animationDelay: '0ms' }}
+                >
+                  <span className="h-1.5 w-1.5 rounded-full bg-oz-green animate-status-pulse" />
+                  <span className="font-mono text-xs text-oz-text-2 tracking-[0.15em] uppercase">
+                    Lahore, Pakistan — Est. 2024
                   </span>
                 </div>
 
                 {/* Headline */}
-                <h1 className="font-display text-5xl sm:text-6xl xl:text-7xl font-bold tracking-tight leading-[1.0] mb-6">
-                  We build<br />
-                  <span className="text-gradient-cyan">AI that works</span><br />
-                  for business<span className="text-oz-cyan">.</span>
+                <h1 className="font-display font-bold tracking-tight leading-[1.0] mb-8">
+                  <span
+                    className="block text-oz-text"
+                    style={{ fontSize: 'clamp(2.75rem, 6vw, 5.5rem)' }}
+                  >
+                    We build
+                  </span>
+                  <span
+                    className="block"
+                    style={{
+                      fontSize:          'clamp(2.75rem, 6vw, 5.5rem)',
+                      background:        'linear-gradient(135deg, #00E5FF 0%, rgba(0,229,255,0.5) 100%)',
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent',
+                      backgroundClip:    'text',
+                    }}
+                  >
+                    AI infrastructure
+                  </span>
+                  <span
+                    className="block text-oz-text"
+                    style={{ fontSize: 'clamp(2.75rem, 6vw, 5.5rem)' }}
+                  >
+                    for real business.
+                  </span>
                 </h1>
 
-                {/* Sub */}
-                <p className="text-oz-text-2 text-lg leading-relaxed mb-10 max-w-md">
-                  AI assistants, bots, apps, and games.
-                  No wrappers. No fluff. Just production infrastructure
-                  that generates real leads.
+                {/* Subheading */}
+                <p className="text-oz-text-2 text-lg leading-relaxed mb-10 max-w-lg">
+                  AI Assistants. WhatsApp Bots. Web Applications. Games.
+                  We ship production-grade systems that your customers actually use —
+                  not demos that live in a slide deck.
                 </p>
 
                 {/* CTAs */}
-                <div className="flex flex-col sm:flex-row gap-3">
+                <div className="flex flex-wrap items-center gap-4">
                   <a
                     href="mailto:founders@ozonelabs.io"
                     className={cn(
-                      'inline-flex items-center justify-center gap-2',
-                      'font-mono text-sm font-bold tracking-widest uppercase',
-                      'bg-oz-cyan text-oz-black',
-                      'h-12 px-8 rounded-sm',
-                      'hover:bg-white hover:shadow-[0_0_32px_rgba(0,229,255,0.5)]',
-                      'transition-all duration-200'
+                      'inline-flex items-center gap-2 font-mono text-sm tracking-widest uppercase font-bold',
+                      'bg-oz-cyan text-oz-black px-8 py-4 rounded-sm',
+                      'hover:bg-white transition-all duration-200',
+                      'hover:shadow-[0_0_40px_rgba(0,229,255,0.5)]',
                     )}
                   >
                     Start a Project
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                      <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
                   </a>
                   <Link
-                    href="#services"
-                    className={cn(
-                      'inline-flex items-center justify-center',
-                      'font-mono text-sm tracking-widest uppercase',
-                      'border border-oz-border-2 text-oz-text-2',
-                      'h-12 px-8 rounded-sm',
-                      'hover:border-oz-cyan/40 hover:text-oz-text',
-                      'transition-all duration-200'
-                    )}
+                    href="/transparency"
+                    className="inline-flex items-center gap-2 font-mono text-sm tracking-widest uppercase text-oz-text-2 hover:text-oz-cyan transition-colors duration-200 px-2 py-4"
                   >
-                    View Services
+                    <span className="h-1.5 w-1.5 rounded-full bg-oz-green animate-status-pulse" />
+                    System Status
                   </Link>
                 </div>
+
+                {/* Social proof strip */}
+                <div className="flex items-center gap-6 mt-14 pt-10 border-t border-oz-border">
+                  {STATS.slice(0, 3).map((s) => (
+                    <div key={s.label}>
+                      <p className="font-display text-2xl font-bold text-oz-text">
+                        {s.value}<span className="text-oz-cyan">{s.suffix}</span>
+                      </p>
+                      <p className="font-mono text-2xs text-oz-text-3 tracking-widest uppercase mt-0.5">
+                        {s.label}
+                      </p>
+                    </div>
+                  ))}
+                </div>
               </div>
 
-              {/* Right: Terminal */}
-              <div className="flex flex-col gap-4">
-                <p className="font-mono text-xs text-oz-text-3 tracking-widest uppercase mb-1">
-                  Live Terminal — Talk to OzoneOS
-                </p>
-                <Suspense fallback={
-                  <div className="h-[460px] bg-oz-surface border border-oz-border rounded-sm animate-pulse" />
-                }>
-                  <OzoneTerminal />
-                </Suspense>
-                <p className="font-mono text-2xs text-oz-text-3 tracking-wider">
-                  Try: <span className="text-oz-cyan cursor-pointer">help</span>,{' '}
-                  <span className="text-oz-cyan">services</span>, or ask anything about what we build.
-                </p>
+              {/* Right — terminal */}
+              <div className="relative">
+                {/* Glow backdrop */}
+                <div
+                  className="absolute -inset-8 pointer-events-none"
+                  style={{
+                    background:
+                      'radial-gradient(ellipse 80% 80% at 50% 50%, rgba(0,229,255,0.06) 0%, transparent 70%)',
+                  }}
+                />
+                <div className="relative">
+                  {/* Terminal label */}
+                  <div className="flex items-center justify-between mb-3 px-1">
+                    <span className="font-mono text-xs text-oz-text-3 tracking-widest uppercase">Live Demo</span>
+                    <span className="font-mono text-xs text-oz-cyan/60 tracking-widest">Try: services</span>
+                  </div>
+                  {mounted && <OzoneTerminal />}
+                </div>
               </div>
 
             </div>
           </div>
 
-          {/* Scroll indicator */}
-          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-float">
-            <span className="font-mono text-2xs text-oz-text-3 tracking-widest uppercase">scroll</span>
-            <div className="h-8 w-px bg-gradient-to-b from-oz-border to-transparent" />
+          {/* Scroll hint */}
+          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-40">
+            <span className="font-mono text-2xs text-oz-text-3 tracking-widest uppercase">Scroll</span>
+            <div className="h-8 w-px bg-gradient-to-b from-oz-text-3 to-transparent" />
           </div>
         </section>
 
-        {/* ── STATS MARQUEE ─────────────────────────────────────────────────── */}
-        <section className="border-y border-oz-border bg-oz-surface/40 py-10">
+        {/* ── SERVICES ─────────────────────────────────────────────────────── */}
+        <section id="services" className="relative py-32">
           <div className="max-w-7xl mx-auto px-6">
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-0 divide-x divide-oz-border">
-              {STATS.map(({ value, label, sub }) => (
-                <div key={label} className="flex flex-col items-center text-center px-8 first:pl-0 last:pr-0 py-4">
-                  <span className="font-display text-4xl lg:text-5xl font-bold text-oz-text tracking-tight mb-1">
-                    {value}
-                    {value === '99.9' && <span className="text-oz-cyan text-2xl">%</span>}
-                  </span>
-                  <span className="font-mono text-xs text-oz-text-2 tracking-wider mb-1">{label}</span>
-                  <span className="font-mono text-2xs text-oz-text-3 tracking-wider">{sub}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ── SERVICES BENTO GRID ───────────────────────────────────────────── */}
-        <section id="services" className="py-28 relative">
-          <div className="absolute inset-0 bg-grid opacity-20 pointer-events-none" />
-          <div className="relative z-10 max-w-7xl mx-auto px-6">
-
-            {/* Section header */}
-            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-14">
+            <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-16">
               <div>
-                <div className="flex items-center gap-3 mb-4">
-                  <span className="h-px w-6 bg-oz-cyan/40" />
-                  <span className="font-mono text-xs text-oz-cyan tracking-[0.2em] uppercase">What we build</span>
-                </div>
-                <h2 className="font-display text-4xl lg:text-5xl font-bold tracking-tight">
-                  Four departments<span className="text-oz-cyan">.</span><br />
-                  One studio<span className="text-oz-cyan">.</span>
+                <SectionLabel>What we build</SectionLabel>
+                <h2 className="font-display text-5xl font-bold text-oz-text tracking-tight">
+                  Four practices.<br />
+                  <span style={{
+                    background:        'linear-gradient(135deg, #00E5FF 0%, rgba(0,229,255,0.5) 100%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    backgroundClip:    'text',
+                  }}>
+                    One agency.
+                  </span>
                 </h2>
               </div>
-              <p className="text-oz-text-3 font-mono text-xs tracking-wider max-w-xs leading-relaxed">
-                Specialised teams working in parallel. Same codebase standards across every project.
+              <p className="text-oz-text-2 leading-relaxed max-w-sm lg:text-right">
+                We don't do everything. We do four things at a level that most agencies can't match.
               </p>
             </div>
 
             {/* Bento grid */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {SERVICES.map((svc) => (
-                <ServiceCard key={svc.id} {...svc} />
-              ))}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-fr">
+              {/* Large card — spans 2 cols on lg */}
+              <div className="lg:col-span-2">
+                <ServiceCard svc={SERVICES[0]} delay={0} />
+              </div>
+
+              {/* Bot card */}
+              <ServiceCard svc={SERVICES[1]} delay={100} />
+
+              {/* Web card */}
+              <ServiceCard svc={SERVICES[2]} delay={150} />
+
+              {/* Games card */}
+              <ServiceCard svc={SERVICES[3]} delay={200} />
+
+              {/* "Zero-cost LLM" highlight card */}
+              <div className="group relative border border-oz-cyan/20 bg-gradient-to-br from-oz-cyan-dim to-transparent rounded-sm overflow-hidden">
+                <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-oz-cyan/50 to-transparent" />
+                <div className="p-7 h-full flex flex-col justify-between">
+                  <span className="font-mono text-2xs text-oz-cyan/60 tracking-widest uppercase">Architecture</span>
+                  <div>
+                    <p className="font-display text-3xl font-bold text-oz-cyan mb-2">$0</p>
+                    <p className="font-mono text-xs text-oz-text-3 tracking-wider mb-3">LLM cost at scale</p>
+                    <p className="text-oz-text-2 text-sm leading-relaxed">
+                      9 models. 3 providers. Automatic failover. Zero dependency on any single vendor.
+                    </p>
+                    <div className="flex flex-wrap gap-2 mt-4">
+                      {['Gemini', 'Groq', 'OpenRouter'].map((t) => (
+                        <span key={t} className="font-mono text-2xs px-2 py-0.5 border border-oz-cyan/20 text-oz-cyan/60 rounded-sm tracking-wider">
+                          {t}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </section>
 
-        {/* ── HOW IT WORKS ──────────────────────────────────────────────────── */}
-        <section className="py-28 border-t border-oz-border bg-oz-surface/20">
-          <div className="max-w-7xl mx-auto px-6">
-            <div className="flex items-center gap-3 mb-4">
-              <span className="h-px w-6 bg-oz-cyan/40" />
-              <span className="font-mono text-xs text-oz-cyan tracking-[0.2em] uppercase">Architecture</span>
-            </div>
-            <h2 className="font-display text-4xl lg:text-5xl font-bold tracking-tight mb-16">
-              Zero-cost AI.<br />Production-grade<span className="text-oz-cyan">.</span>
-            </h2>
-
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-px bg-oz-border rounded-sm overflow-hidden">
-              {[
-                {
-                  n: '01',
-                  title: 'Smart Routing',
-                  body: 'Each message is classified as simple or complex. Simple messages go to the fastest, cheapest model. Complex queries route to the most capable.',
-                },
-                {
-                  n: '02',
-                  title: '9-Model Fallback',
-                  body: 'Gemini → Groq → OpenRouter. If any provider throttles or goes down, the next one fires automatically. Zero downtime, zero manual intervention.',
-                },
-                {
-                  n: '03',
-                  title: 'Memory + Context',
-                  body: 'SQLite in WAL mode with a sliding context window. Every session persists history. Language is detected once and pinned — no drift mid-conversation.',
-                },
-              ].map(({ n, title, body }) => (
-                <div key={n} className="bg-oz-black p-8 lg:p-10">
-                  <p className="font-mono text-oz-cyan text-xs tracking-[0.2em] mb-6">{n}</p>
-                  <h3 className="font-display text-xl font-bold mb-4">{title}</h3>
-                  <p className="text-oz-text-2 text-sm leading-relaxed">{body}</p>
+        {/* ── STATS STRIP ──────────────────────────────────────────────────── */}
+        <section className="border-y border-oz-border bg-oz-surface/30 py-16">
+          <div ref={statsView.ref} className="max-w-7xl mx-auto px-6">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
+              {STATS.map((s, i) => (
+                <div
+                  key={s.label}
+                  className={cn(
+                    'text-center transition-all duration-700',
+                    statsView.visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6',
+                  )}
+                  style={{ transitionDelay: statsView.visible ? `${i * 100}ms` : '0ms' }}
+                >
+                  <p className="font-display font-bold text-oz-text" style={{ fontSize: 'clamp(2.5rem, 4vw, 3.5rem)' }}>
+                    {s.value}<span className="text-oz-cyan">{s.suffix}</span>
+                  </p>
+                  <p className="font-mono text-xs text-oz-text-3 tracking-widest uppercase mt-2">{s.label}</p>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        {/* ── WORK ─────────────────────────────────────────────────────────── */}
-        <section id="work" className="py-28 border-t border-oz-border">
-          <div className="max-w-7xl mx-auto px-6">
-            <div className="flex items-center gap-3 mb-4">
-              <span className="h-px w-6 bg-oz-cyan/40" />
-              <span className="font-mono text-xs text-oz-cyan tracking-[0.2em] uppercase">Selected Work</span>
-            </div>
-            <h2 className="font-display text-4xl lg:text-5xl font-bold tracking-tight mb-16">
-              Built and<br />deployed<span className="text-oz-cyan">.</span>
+        {/* ── HOW WE WORK ──────────────────────────────────────────────────── */}
+        <section id="work" className="relative py-32 overflow-hidden">
+          <div className="absolute inset-0 bg-grid opacity-20 pointer-events-none" />
+          <div className="relative z-10 max-w-7xl mx-auto px-6">
+            <SectionLabel>Process</SectionLabel>
+            <h2 className="font-display text-5xl font-bold text-oz-text tracking-tight mb-20">
+              How we work<span className="text-oz-cyan">.</span>
             </h2>
 
-            <div className="flex flex-col gap-px bg-oz-border rounded-sm overflow-hidden">
-              {WORK.map((w, i) => (
-                <WorkRow key={i} {...w} index={i} />
+            <div ref={processView.ref} className="grid md:grid-cols-3 gap-0 relative">
+              {/* Connector line — desktop */}
+              <div className="hidden md:block absolute top-7 left-[calc(16.67%+1rem)] right-[calc(16.67%+1rem)] h-px bg-oz-border" />
+
+              {PROCESS.map((p, i) => (
+                <div
+                  key={p.step}
+                  className={cn(
+                    'relative px-0 md:px-8 first:pl-0 last:pr-0 transition-all duration-700',
+                    processView.visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8',
+                  )}
+                  style={{ transitionDelay: processView.visible ? `${i * 150}ms` : '0ms' }}
+                >
+                  {/* Step number */}
+                  <div className="relative z-10 inline-flex items-center justify-center w-14 h-14 border border-oz-border bg-oz-black rounded-sm mb-6">
+                    <span className="font-mono text-sm text-oz-cyan tracking-widest">{p.step}</span>
+                  </div>
+
+                  <h3 className="font-display text-2xl font-bold text-oz-text mb-4">{p.title}</h3>
+                  <p className="text-oz-text-2 leading-relaxed">{p.desc}</p>
+                </div>
               ))}
             </div>
           </div>
         </section>
 
-        {/* ── TECH STACK ────────────────────────────────────────────────────── */}
-        <section className="py-28 border-t border-oz-border bg-oz-surface/20">
+        {/* ── TECH STACK ───────────────────────────────────────────────────── */}
+        <section id="about" className="py-24 border-t border-oz-border overflow-hidden">
+          <div className="max-w-7xl mx-auto px-6 mb-12">
+            <SectionLabel>Technology</SectionLabel>
+            <h2 className="font-display text-4xl font-bold text-oz-text tracking-tight">
+              Built on what actually works<span className="text-oz-cyan">.</span>
+            </h2>
+          </div>
+
+          {/* Scrolling ticker */}
+          <div className="relative">
+            {/* Fade edges */}
+            <div className="absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-oz-black to-transparent z-10 pointer-events-none" />
+            <div className="absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-oz-black to-transparent z-10 pointer-events-none" />
+
+            {/* Track */}
+            <div className="flex overflow-hidden">
+              <div
+                className="flex gap-3 shrink-0 pr-3"
+                style={{ animation: 'ticker 25s linear infinite' }}
+              >
+                {[...STACK, ...STACK].map((tech, i) => (
+                  <span
+                    key={i}
+                    className="shrink-0 font-mono text-sm px-5 py-2.5 border border-oz-border-2 bg-oz-surface text-oz-text-2 rounded-sm tracking-wider whitespace-nowrap hover:border-oz-cyan/30 hover:text-oz-cyan transition-colors duration-200 cursor-default"
+                  >
+                    {tech}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <style>{`
+            @keyframes ticker {
+              0%   { transform: translateX(0); }
+              100% { transform: translateX(-50%); }
+            }
+          `}</style>
+        </section>
+
+        {/* ── TRANSPARENCY STRIP ───────────────────────────────────────────── */}
+        <section className="py-16 border-t border-oz-border">
           <div className="max-w-7xl mx-auto px-6">
-            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-8 mb-14">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
               <div>
-                <div className="flex items-center gap-3 mb-4">
-                  <span className="h-px w-6 bg-oz-cyan/40" />
-                  <span className="font-mono text-xs text-oz-cyan tracking-[0.2em] uppercase">Transparency Hub</span>
-                </div>
-                <h2 className="font-display text-4xl lg:text-5xl font-bold tracking-tight">
-                  Open stack<span className="text-oz-cyan">.</span><br />
-                  No black boxes<span className="text-oz-cyan">.</span>
-                </h2>
+                <SectionLabel>Transparency Hub</SectionLabel>
+                <h3 className="font-display text-3xl font-bold text-oz-text tracking-tight mb-3">
+                  If something breaks, you'll know before we do.
+                </h3>
+                <p className="text-oz-text-2 leading-relaxed max-w-lg">
+                  Real-time system status for all infrastructure. We publish it publicly because we believe trust is built in public.
+                </p>
               </div>
               <Link
                 href="/transparency"
-                className="font-mono text-xs tracking-widest uppercase text-oz-cyan border border-oz-cyan/20 hover:border-oz-cyan px-6 py-3 rounded-sm transition-all duration-200 shrink-0 self-start sm:self-auto"
-              >
-                View System Status →
-              </Link>
-            </div>
-
-            <div className="flex flex-wrap gap-2">
-              {STACK.map(({ name, category }) => (
-                <StackTag key={name} name={name} category={category} />
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ── ABOUT ─────────────────────────────────────────────────────────── */}
-        <section id="about" className="py-28 border-t border-oz-border">
-          <div className="max-w-7xl mx-auto px-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center">
-
-              <div>
-                <div className="flex items-center gap-3 mb-4">
-                  <span className="h-px w-6 bg-oz-cyan/40" />
-                  <span className="font-mono text-xs text-oz-cyan tracking-[0.2em] uppercase">About</span>
-                </div>
-                <h2 className="font-display text-4xl lg:text-5xl font-bold tracking-tight mb-8">
-                  Deep tech.<br />
-                  Not a wrapper<span className="text-oz-cyan">.</span>
-                </h2>
-                <div className="space-y-4 text-oz-text-2 leading-relaxed">
-                  <p>
-                    Ozone Labs is a technical agency based in Lahore, Pakistan.
-                    We don't resell SaaS tools with a markup — we build the underlying infrastructure.
-                  </p>
-                  <p>
-                    Our AI architecture uses a 9-model fallback chain across Gemini, Groq, and OpenRouter.
-                    That means $0 LLM cost at our volume, with better reliability than any single-provider setup.
-                  </p>
-                  <p>
-                    Everything we build ships with trilingual support out of the box:
-                    English, Roman Urdu, and Urdu script — because that's what your customers actually speak.
-                  </p>
-                </div>
-              </div>
-
-              {/* Terminal-style "manifest" */}
-              <div className="bg-oz-surface border border-oz-border rounded-sm p-8 font-mono text-sm">
-                <p className="text-oz-text-3 mb-6 text-xs tracking-widest uppercase">ozonelabs.manifest</p>
-                {[
-                  ['Performance',    'Ship fast. Iterate faster.'],
-                  ['Transparency',   'Open stack. Real status. No black boxes.'],
-                  ['Intelligence',   'Agentic workflows over scripted bots.'],
-                  ['Language',       'English + Roman Urdu + Urdu — always.'],
-                  ['Cost',           'Free-tier LLM infrastructure by design.'],
-                  ['Reliability',    'Multi-provider fallback. 9 models deep.'],
-                ].map(([key, val]) => (
-                  <div key={key} className="flex gap-4 py-2.5 border-b border-oz-border last:border-0">
-                    <span className="text-oz-cyan w-32 shrink-0">{key}</span>
-                    <span className="text-oz-text-2">{val}</span>
-                  </div>
-                ))}
-              </div>
-
-            </div>
-          </div>
-        </section>
-
-        {/* ── CTA ───────────────────────────────────────────────────────────── */}
-        <section className="relative py-32 border-t border-oz-border overflow-hidden">
-          <div className="absolute inset-0 bg-grid opacity-20 pointer-events-none" />
-          <div className="absolute inset-0 pointer-events-none"
-            style={{ background: 'radial-gradient(ellipse 80% 60% at 50% 50%, rgba(0,229,255,0.05) 0%, transparent 70%)' }} />
-
-          <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
-            <p className="font-mono text-xs text-oz-cyan tracking-[0.25em] uppercase mb-6">Ready to ship?</p>
-            <h2 className="font-display text-5xl lg:text-7xl font-bold tracking-tight mb-8">
-              Let's build<br />
-              something real<span className="text-oz-cyan">.</span>
-            </h2>
-            <p className="text-oz-text-2 text-lg leading-relaxed mb-12 max-w-xl mx-auto">
-              Tell us what you need. We scope, prototype, and ship.
-              Response within 24 hours.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a
-                href="mailto:founders@ozonelabs.io"
                 className={cn(
-                  'inline-flex items-center justify-center gap-3',
-                  'font-mono text-sm font-bold tracking-widest uppercase',
-                  'bg-oz-cyan text-oz-black',
-                  'h-14 px-10 rounded-sm',
-                  'hover:bg-white hover:shadow-[0_0_60px_rgba(0,229,255,0.6)]',
-                  'transition-all duration-200'
+                  'shrink-0 inline-flex items-center gap-2',
+                  'font-mono text-sm tracking-widest uppercase',
+                  'border border-oz-border-2 text-oz-text-2',
+                  'px-8 py-4 rounded-sm',
+                  'hover:border-oz-cyan hover:text-oz-cyan hover:shadow-oz',
+                  'transition-all duration-200',
                 )}
               >
+                View Status
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                  <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* ── CTA ──────────────────────────────────────────────────────────── */}
+        <section className="relative py-40 overflow-hidden">
+          {/* Background grid */}
+          <div className="absolute inset-0 bg-grid opacity-30 pointer-events-none" />
+
+          {/* Cyan radial glow */}
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background: 'radial-gradient(ellipse 60% 60% at 50% 100%, rgba(0,229,255,0.08) 0%, transparent 70%)',
+            }}
+          />
+
+          <div className="relative z-10 max-w-5xl mx-auto px-6 text-center">
+            <p className="font-mono text-xs text-oz-cyan tracking-[0.3em] uppercase mb-8">
+              Let's work together
+            </p>
+            <h2
+              className="font-display font-bold tracking-tight text-oz-text mb-6"
+              style={{ fontSize: 'clamp(2.5rem, 7vw, 5.5rem)', lineHeight: 1.0 }}
+            >
+              Ready to build something that actually works?
+            </h2>
+            <p className="text-oz-text-2 text-lg leading-relaxed max-w-xl mx-auto mb-14">
+              We scope fast and we're honest about what's feasible.
+              Drop us a line and we'll respond within 24 hours — usually much less.
+            </p>
+
+            {/* Email CTA */}
+            <a
+              href="mailto:founders@ozonelabs.io"
+              className="group inline-flex items-center gap-4"
+            >
+              <span
+                className="font-display font-bold text-oz-text group-hover:text-oz-cyan transition-colors duration-300"
+                style={{ fontSize: 'clamp(1.5rem, 4vw, 2.5rem)' }}
+              >
                 founders@ozonelabs.io
-              </a>
+              </span>
+              <svg
+                width="32"
+                height="32"
+                viewBox="0 0 32 32"
+                fill="none"
+                className="text-oz-cyan group-hover:translate-x-2 transition-transform duration-300"
+              >
+                <path d="M6 16h20M18 8l8 8-8 8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </a>
+
+            {/* Secondary */}
+            <div className="flex items-center justify-center gap-6 mt-16">
+              <span className="font-mono text-xs text-oz-text-3 tracking-widest uppercase">Or find us at</span>
               <a
                 href="https://instagram.com/ozonelabs"
                 target="_blank"
                 rel="noopener noreferrer"
-                className={cn(
-                  'inline-flex items-center justify-center',
-                  'font-mono text-sm tracking-widest uppercase',
-                  'border border-oz-border-2 text-oz-text-2',
-                  'h-14 px-10 rounded-sm',
-                  'hover:border-oz-cyan/40 hover:text-oz-text',
-                  'transition-all duration-200'
-                )}
+                className="font-mono text-sm text-oz-text-2 hover:text-oz-cyan transition-colors tracking-wider"
               >
                 @ozonelabs
               </a>
@@ -453,165 +612,32 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* ── FOOTER ────────────────────────────────────────────────────────── */}
+        {/* ── FOOTER ───────────────────────────────────────────────────────── */}
         <footer className="border-t border-oz-border py-10">
-          <div className="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p className="font-mono text-xs text-oz-text-3 tracking-widest">
+          <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
+            <Link href="/" className="font-mono text-sm font-bold tracking-[0.2em] uppercase">
               <span className="text-oz-cyan">OZ</span>
               <span className="text-oz-border-2 mx-1.5">/</span>
-              LABS — Lahore, Pakistan
-            </p>
-            <p className="font-mono text-xs text-oz-text-3 tracking-wider">
-              © {new Date().getFullYear()} Ozone Labs. Built with Next.js 15 + Gemini.
-            </p>
-            <Link
-              href="/transparency"
-              className="font-mono text-xs text-oz-text-3 hover:text-oz-cyan tracking-wider transition-colors duration-150 flex items-center gap-2"
-            >
-              <span className="h-1.5 w-1.5 rounded-full bg-oz-green animate-status-pulse" />
-              All systems operational
+              <span className="text-oz-text">LABS</span>
             </Link>
+            <p className="font-mono text-xs text-oz-text-3 tracking-wider">
+              © {new Date().getFullYear()} Ozone Labs — Lahore, Pakistan
+            </p>
+            <div className="flex items-center gap-6">
+              <Link href="/transparency" className="font-mono text-xs text-oz-text-3 hover:text-oz-cyan transition-colors tracking-wider">
+                Status
+              </Link>
+              <Link href="/auth/login" className="font-mono text-xs text-oz-text-3 hover:text-oz-cyan transition-colors tracking-wider">
+                Portal
+              </Link>
+              <a href="mailto:founders@ozonelabs.io" className="font-mono text-xs text-oz-text-3 hover:text-oz-cyan transition-colors tracking-wider">
+                Contact
+              </a>
+            </div>
           </div>
         </footer>
 
       </main>
     </>
-  );
-}
-
-// ─── Sub-components (colocated, no extra files needed) ────────────────────────
-
-const CATEGORY_COLORS: Record<string, string> = {
-  'Frontend':   'rgba(0,229,255,0.08)',
-  'Backend':    'rgba(0,255,136,0.08)',
-  'Database':   'rgba(255,184,0,0.08)',
-  'AI/ML':      'rgba(255,61,87,0.08)',
-  'Auth':       'rgba(0,229,255,0.06)',
-  'Language':   'rgba(0,229,255,0.06)',
-  'Infra':      'rgba(0,255,136,0.06)',
-  'Automation': 'rgba(255,184,0,0.06)',
-  'Messaging':  'rgba(0,229,255,0.06)',
-};
-
-const CATEGORY_TEXT: Record<string, string> = {
-  'Frontend':   '#00E5FF',
-  'Backend':    '#00FF88',
-  'Database':   '#FFB800',
-  'AI/ML':      '#FF3D57',
-  'Auth':       '#9898B0',
-  'Language':   '#9898B0',
-  'Infra':      '#00FF88',
-  'Automation': '#FFB800',
-  'Messaging':  '#00E5FF',
-};
-
-function StackTag({ name, category }: { name: string; category: string }) {
-  return (
-    <span
-      className="font-mono text-xs px-3 py-1.5 rounded-sm border border-oz-border tracking-wider"
-      style={{
-        background: CATEGORY_COLORS[category] ?? 'rgba(255,255,255,0.03)',
-        color:      CATEGORY_TEXT[category]   ?? '#9898B0',
-      }}
-    >
-      {name}
-    </span>
-  );
-}
-
-function ServiceCard({
-  tag, title, body, span, items, accent,
-}: {
-  tag: string; title: string; body: string;
-  span: string; items: string[]; accent: string;
-}) {
-  // First card spans 2 columns on md+
-  const isWide = span === 'col-span-2';
-
-  return (
-    <div
-      className={cn(
-        'group relative bg-oz-surface border border-oz-border rounded-sm p-8',
-        'hover:border-oz-border-2 transition-all duration-300',
-        isWide ? 'md:col-span-2' : 'col-span-1',
-        // Top accent line on hover
-        'overflow-hidden'
-      )}
-    >
-      {/* Top accent line */}
-      <div
-        className="absolute top-0 inset-x-0 h-px opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-        style={{ background: `linear-gradient(90deg, transparent, ${accent}, transparent)` }}
-      />
-
-      <p className="font-mono text-2xs tracking-widest uppercase mb-5"
-        style={{ color: accent }}
-      >
-        {tag}
-      </p>
-
-      <h3 className={cn(
-        'font-display font-bold tracking-tight mb-4 text-oz-text',
-        isWide ? 'text-2xl lg:text-3xl' : 'text-xl'
-      )}>
-        {title}
-      </h3>
-
-      <p className="text-oz-text-2 text-sm leading-relaxed mb-8">{body}</p>
-
-      <div className="flex flex-wrap gap-2">
-        {items.map(item => (
-          <span
-            key={item}
-            className="font-mono text-2xs px-2.5 py-1 rounded-sm border border-oz-border text-oz-text-3 tracking-wider"
-          >
-            {item}
-          </span>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function WorkRow({
-  client, type, desc, tags, status, index,
-}: {
-  client: string; type: string; desc: string;
-  tags: string[]; status: string; index: number;
-}) {
-  return (
-    <div className="bg-oz-black grid grid-cols-1 lg:grid-cols-[1fr_2fr_auto] gap-6 p-8 group hover:bg-oz-surface/40 transition-colors duration-200">
-      <div>
-        <p className="font-mono text-2xs text-oz-text-3 tracking-widest uppercase mb-2">{type}</p>
-        <h3 className="font-display text-xl font-bold text-oz-text">{client}</h3>
-        <span className={cn(
-          'inline-flex items-center gap-1.5 font-mono text-2xs tracking-widest uppercase mt-3',
-          status === 'Live' ? 'text-oz-green' : 'text-oz-text-3'
-        )}>
-          <span className={cn(
-            'h-1.5 w-1.5 rounded-full',
-            status === 'Live' ? 'bg-oz-green animate-status-pulse' : 'bg-oz-text-3'
-          )} />
-          {status}
-        </span>
-      </div>
-
-      <div>
-        <p className="text-oz-text-2 text-sm leading-relaxed mb-4">{desc}</p>
-        <div className="flex flex-wrap gap-2">
-          {tags.map(tag => (
-            <span key={tag} className="font-mono text-2xs px-2.5 py-1 border border-oz-border text-oz-text-3 rounded-sm tracking-wider">
-              {tag}
-            </span>
-          ))}
-        </div>
-      </div>
-
-      <div className="flex items-center self-center">
-        <span className="font-mono text-xs text-oz-text-3 tracking-widest">
-          {String(index + 1).padStart(2, '0')}
-        </span>
-      </div>
-    </div>
   );
 }
