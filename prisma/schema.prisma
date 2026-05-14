@@ -1,0 +1,328 @@
+// ============================================================
+// OZONE LABS — PRISMA SCHEMA
+// Database: PostgreSQL (Supabase)
+// ============================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL") // Required for Supabase connection pooling
+}
+
+// ─── NextAuth.js Models ───────────────────────────────────────────────────────
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  role          Role      @default(CLIENT)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // NextAuth relations
+  accounts Account[]
+  sessions Session[]
+
+  // Business relations
+  client   Client?
+  apiKeys  ApiKey[]
+
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// ─── Core Business Models ─────────────────────────────────────────────────────
+
+model Client {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  companyName String
+  industry    String?
+  website     String?
+  logoUrl     String?
+  tier        Tier     @default(STARTER)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user             User               @relation(fields: [userId], references: [id])
+  projects         Project[]
+  botConfigurations BotConfiguration[]
+  usageLogs        UsageLog[]
+
+  @@map("clients")
+}
+
+model Project {
+  id          String        @id @default(cuid())
+  clientId    String
+  name        String
+  description String?       @db.Text
+  type        ProjectType
+  status      ProjectStatus @default(SCOPING)
+  startDate   DateTime?
+  dueDate     DateTime?
+  deliveredAt DateTime?
+  repoUrl     String?
+  liveUrl     String?
+  
+  // Metadata stored as JSON for flexibility
+  // e.g. { techStack: [...], milestones: [...], integrations: [...] }
+  metadata    Json?
+  
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  client   Client    @relation(fields: [clientId], references: [id])
+  milestones Milestone[]
+
+  @@map("projects")
+}
+
+model Milestone {
+  id          String          @id @default(cuid())
+  projectId   String
+  title       String
+  description String?         @db.Text
+  status      MilestoneStatus @default(PENDING)
+  dueDate     DateTime?
+  completedAt DateTime?
+  createdAt   DateTime        @default(now())
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@map("milestones")
+}
+
+// ─── Bot Infrastructure Models ────────────────────────────────────────────────
+
+model BotConfiguration {
+  id          String   @id @default(cuid())
+  clientId    String
+  name        String
+  description String?  @db.Text
+  platform    Platform
+  isActive    Boolean  @default(true)
+  
+  // The full client config JSON (compatible with our Core Engine format)
+  // This is the same shape as laforza_gym_lahore.json, universal-assistant.json etc.
+  configJson  Json
+  
+  // System prompt cache — pre-rendered to avoid rebuilding on every message
+  systemPromptCache String? @db.Text
+  promptCachedAt    DateTime?
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  client    Client     @relation(fields: [clientId], references: [id])
+  apiKeys   ApiKey[]
+  usageLogs UsageLog[]
+
+  @@map("bot_configurations")
+}
+
+// ─── API Key Management ───────────────────────────────────────────────────────
+
+model ApiKey {
+  id             String    @id @default(cuid())
+  userId         String
+  botConfigId    String?
+  name           String    // Human-readable label: "Production WhatsApp Key"
+  keyHash        String    @unique  // SHA-256 of actual key — never store plaintext
+  keyPrefix      String    // First 8 chars for display: "oz_live_ab12..."
+  provider       String    // "gemini" | "groq" | "openrouter" | "whatsapp" | "internal"
+  scopes         String[]  // ["messages:read", "messages:write", "config:read"]
+  isActive       Boolean   @default(true)
+  lastUsedAt     DateTime?
+  expiresAt      DateTime?
+  monthlyLimit   Int?      // Max calls per month, null = unlimited
+  currentMonthCalls Int    @default(0)
+  createdAt      DateTime  @default(now())
+  
+  user      User              @relation(fields: [userId], references: [id])
+  botConfig BotConfiguration? @relation(fields: [botConfigId], references: [id])
+
+  @@map("api_keys")
+}
+
+// ─── Usage Analytics ──────────────────────────────────────────────────────────
+
+model UsageLog {
+  id            String   @id @default(cuid())
+  clientId      String
+  botConfigId   String
+  sessionId     String   // External session ID (e.g. WhatsApp phone number)
+  
+  // Token tracking
+  inputTokens   Int      @default(0)
+  outputTokens  Int      @default(0)
+  totalTokens   Int      @default(0)
+  
+  // Provider & routing metadata
+  provider      String   // Which LLM was used
+  complexity    String   // "simple" | "complex"
+  sentiment     String   // "neutral" | "urgent" | "frustrated"
+  isHandoff     Boolean  @default(false)
+  isCacheHit    Boolean  @default(false)
+  
+  // Performance
+  latencyMs     Int?
+  
+  // Financial (cost estimation — stored in microdollars to avoid float)
+  estimatedCostMicrodollars Int @default(0)
+  
+  createdAt     DateTime @default(now())
+
+  client    Client           @relation(fields: [clientId], references: [id])
+  botConfig BotConfiguration @relation(fields: [botConfigId], references: [id])
+
+  // Indexes for common query patterns
+  @@index([clientId, createdAt])
+  @@index([botConfigId, createdAt])
+  @@index([sessionId])
+  @@index([createdAt])
+  @@map("usage_logs")
+}
+
+// ─── System Status (Transparency Hub) ────────────────────────────────────────
+
+model ServiceStatus {
+  id          String       @id @default(cuid())
+  service     String       @unique // "gemini_api" | "groq_api" | "whatsapp_bridge" | "database"
+  displayName String
+  status      StatusLevel  @default(OPERATIONAL)
+  latencyMs   Int?
+  uptimePercent Float      @default(100)
+  lastCheckedAt DateTime   @default(now())
+  
+  incidents   StatusIncident[]
+
+  @@map("service_statuses")
+}
+
+model StatusIncident {
+  id          String         @id @default(cuid())
+  serviceId   String
+  title       String
+  description String         @db.Text
+  severity    IncidentSeverity
+  startedAt   DateTime
+  resolvedAt  DateTime?
+  isResolved  Boolean        @default(false)
+
+  service ServiceStatus @relation(fields: [serviceId], references: [id])
+
+  @@map("status_incidents")
+}
+
+// ─── Enums ────────────────────────────────────────────────────────────────────
+
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+  CLIENT
+}
+
+enum Tier {
+  STARTER
+  PROFESSIONAL
+  ENTERPRISE
+}
+
+enum ProjectType {
+  AI_ASSISTANT
+  BOT_INFRASTRUCTURE
+  WEB_APPLICATION
+  MOBILE_APP
+  GAME
+  CUSTOM
+}
+
+enum ProjectStatus {
+  SCOPING
+  IN_PROGRESS
+  REVIEW
+  DELIVERED
+  MAINTENANCE
+  PAUSED
+  CANCELLED
+}
+
+enum MilestoneStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETE
+  BLOCKED
+}
+
+enum Platform {
+  WHATSAPP_BUSINESS_API
+  WHATSAPP_WEB
+  WEB_WIDGET
+  TELEGRAM
+  SLACK
+  DISCORD
+  SMS
+  CUSTOM_API
+}
+
+enum StatusLevel {
+  OPERATIONAL
+  DEGRADED
+  PARTIAL_OUTAGE
+  MAJOR_OUTAGE
+  MAINTENANCE
+}
+
+enum IncidentSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}

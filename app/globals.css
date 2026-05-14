@@ -1,0 +1,165 @@
+@import 'tailwindcss';
+
+/* ── CSS Custom Properties — Ozone Labs Design System ──────────────────────── */
+
+:root {
+  /* Phosphor glow — applied to interactive terminal elements */
+  --glow-cyan:     0 0 0 1px rgba(0, 229, 255, 0.2), 0 0 20px rgba(0, 229, 255, 0.12), 0 0 40px rgba(0, 229, 255, 0.06);
+  --glow-cyan-lg:  0 0 0 1px rgba(0, 229, 255, 0.3), 0 0 40px rgba(0, 229, 255, 0.2), 0 0 80px rgba(0, 229, 255, 0.08);
+
+  /* Grid line pattern — used in hero background */
+  --grid-color:    rgba(30, 30, 40, 0.8);
+  --grid-size:     40px;
+
+  /* Transition defaults */
+  --transition:    all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-lg: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ── Base Reset ─────────────────────────────────────────────────────────────── */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 80px; /* Offset for sticky nav */
+}
+
+body {
+  background-color: #050507;
+  overflow-x: hidden;
+}
+
+/* ── Typography Base ────────────────────────────────────────────────────────── */
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-syne), sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+code, pre, kbd, .mono {
+  font-family: var(--font-space-mono), Consolas, monospace;
+  font-size: 0.875em;
+}
+
+/* ── Scrollbar ──────────────────────────────────────────────────────────────── */
+
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0a0a0e;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #2a2a38;
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 229, 255, 0.3);
+}
+
+/* ── Grid Background ────────────────────────────────────────────────────────── */
+
+.bg-grid {
+  background-image:
+    linear-gradient(to right, var(--grid-color) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--grid-color) 1px, transparent 1px);
+  background-size: var(--grid-size) var(--grid-size);
+}
+
+/* Radial gradient overlay to fade the grid toward the center */
+.bg-grid-fade::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 80% 60% at 50% 0%,
+    transparent 0%,
+    #050507 100%
+  );
+  pointer-events: none;
+}
+
+/* ── CRT Scanline Effect ────────────────────────────────────────────────────── */
+
+.crt-scanlines {
+  position: relative;
+  overflow: hidden;
+}
+
+.crt-scanlines::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.08) 2px,
+    rgba(0, 0, 0, 0.08) 4px
+  );
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* ── Phosphor Glow Classes ──────────────────────────────────────────────────── */
+
+.glow {
+  box-shadow: var(--glow-cyan);
+}
+
+.glow-text {
+  text-shadow: 0 0 20px rgba(0, 229, 255, 0.6), 0 0 40px rgba(0, 229, 255, 0.3);
+}
+
+.glow-border {
+  border: 1px solid rgba(0, 229, 255, 0.3);
+  box-shadow: var(--glow-cyan);
+}
+
+/* ── Terminal Cursor ────────────────────────────────────────────────────────── */
+
+.cursor-blink::after {
+  content: '█';
+  display: inline-block;
+  color: #00E5FF;
+  animation: cursor 1.1s ease-in-out infinite;
+  margin-left: 1px;
+  font-size: 0.9em;
+}
+
+/* ── Gradient Text ──────────────────────────────────────────────────────────── */
+
+.text-gradient-cyan {
+  background: linear-gradient(135deg, #00E5FF 0%, rgba(0, 229, 255, 0.6) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-white {
+  background: linear-gradient(180deg, #f0f0f4 0%, rgba(240, 240, 244, 0.6) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Focus Styles ───────────────────────────────────────────────────────────── */
+
+:focus-visible {
+  outline: 2px solid #00E5FF;
+  outline-offset: 2px;
+}
+
+/* ── Utility: No scrollbar ──────────────────────────────────────────────────── */
+
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
