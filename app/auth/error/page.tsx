@@ -8,7 +8,6 @@
 
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { Button } from '@/components/ui/Button';
 
 const ERROR_MESSAGES: Record<string, string> = {
   Configuration:  'Server configuration error. Please contact support.',
@@ -40,12 +39,18 @@ export default function AuthErrorPage() {
         </div>
 
         <div className="flex gap-3 w-full">
-          <Button variant="outline" size="md" className="flex-1" asChild>
-            <Link href="/auth/login">Try again</Link>
-          </Button>
-          <Button variant="ghost" size="md" className="flex-1" asChild>
-            <Link href="/">Go home</Link>
-          </Button>
+          <Link
+          href="/auth/login"
+           className="flex-1 text-center font-mono text-sm tracking-wider uppercase border border-oz-border-2 text-oz-text-2 px-6 py-2 rounded-sm hover:border-oz-cyan hover:text-oz-cyan transition-all duration-200"
+          >
+            Try again
+          </Link>
+          <Link
+          href="/"
+          className="flex-1 text-center font-mono text-sm tracking-wider uppercase text-oz-text-3 px-6 py-2 rounded-sm hover:text-oz-cyan transition-all duration-200"
+          >
+            Go home
+          </Link>
         </div>
       </div>
     </div>
