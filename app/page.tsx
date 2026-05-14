@@ -3,14 +3,8 @@
 /**
  * OZONE LABS — HOMEPAGE
  * ─────────────────────────────────────────────────────────────────────────────
- * Sections:
- *   1. Hero          — headline + live terminal demo
- *   2. Differentiators — 4 key stats
- *   3. Services      — 4 service cards  (#services)
- *   4. Architecture  — zero-cost LLM chain
- *   5. Work          — project categories (#work)
- *   6. CTA           — email contact
- *   7. Footer
+ * Premium agency landing page.
+ * Sections: Hero · Services · Stats · Process · Stack · CTA
  * ─────────────────────────────────────────────────────────────────────────────
  */
 
