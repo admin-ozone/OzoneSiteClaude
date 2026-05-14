@@ -24,7 +24,7 @@ const BOOT_LINES: { content: string; type: LineType; delay: number }[] = [
   { content: 'OzoneOS v1.0.0 — initializing...', type: 'system', delay: 0   },
   { content: 'loading AI modules............... OK', type: 'system', delay: 300 },
   { content: 'connecting to inference cluster.. OK', type: 'system', delay: 550 },
-  { content: 'gemini-2.0-flash-lite online..... OK', type: 'system', delay: 780 },
+  { content: 'gemini-3.1-flash-lite online..... OK', type: 'system', delay: 780 },
   { content: '─────────────────────────────────────', type: 'system', delay: 1000 },
   { content: 'Type  help  to see commands, or ask me anything.', type: 'system', delay: 1150 },
 ];

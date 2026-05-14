@@ -68,7 +68,7 @@ async function* streamGemini(
   history: ConversationHistory
 ): AsyncGenerator<string> {
   const model = genAI.getGenerativeModel({
-    model:             process.env.TERMINAL_MODEL ?? 'gemini-2.0-flash-lite',
+    model:             process.env.TERMINAL_MODEL ?? 'gemini-3.1-flash-lite',
     systemInstruction: OZONE_TERMINAL_SYSTEM_PROMPT,
     generationConfig: {
       maxOutputTokens: 512,
