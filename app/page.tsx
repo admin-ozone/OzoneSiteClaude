@@ -14,231 +14,102 @@
  * ─────────────────────────────────────────────────────────────────────────────
  */
 
+import { Suspense } from 'react';
+import Link from 'next/link';
 import { Navigation } from '@/components/Navigation';
 import { OzoneTerminal } from '@/components/terminal/OzoneTerminal';
-import { GlowCard } from '@/components/ui/GlowCard';
-import { Button } from '@/components/ui/Button';
+import { cn } from '@/lib/utils';
 
-// ─── Data ─────────────────────────────────────────────────────────────────────
+// ─── Static data ──────────────────────────────────────────────────────────────
+
+const STATS = [
+  { value: '9',    label: 'LLM Models',      sub: 'in fallback chain'    },
+  { value: '$0',   label: 'LLM Cost',         sub: 'free-tier architecture'},
+  { value: '3',    label: 'Languages',         sub: 'EN · Roman Urdu · UR' },
+  { value: '99.9', label: 'Uptime',            sub: 'multi-provider failover'},
+];
 
 const SERVICES = [
   {
-    id:          '01',
-    title:       'Assistant Forge',
-    tag:         'AI · RAG · Agents',
-    description: 'Custom AI assistants for local businesses. RAG-powered knowledge bases, agentic workflows, and multi-platform deployment — ready for production from day one.',
-    features:    [
-      'WhatsApp Business API & web widgets',
-      'Trilingual: English · Roman Urdu · اردو',
-      'Multi-provider LLM fallback chain',
-      'Retrieval-Augmented Generation (RAG)',
-    ],
-    accentColor: 'oz-cyan',
-    dotColor:    'bg-oz-cyan',
-    tagColor:    'text-oz-cyan border-oz-cyan/20',
-    glowClass:   'hover:shadow-[0_0_40px_rgba(0,229,255,0.06)]',
+    id:    'assistant',
+    tag:   '01 — ASSISTANT FORGE',
+    title: 'AI Assistants that speak your customers\'s language',
+    body:  'WhatsApp bots, web widgets, and agentic workflows. RAG-powered knowledge bases. Trilingual by default: English, Roman Urdu, Urdu. Powered by a 9-model fallback chain that costs you $0.',
+    span:  'col-span-2',
+    items: ['RAG Knowledge Base', 'WhatsApp Business API', 'Multilingual (EN/UR)', '9-Model Fallback Chain'],
+    accent: '#00E5FF',
   },
   {
-    id:          '02',
-    title:       'Bot Infrastructure',
-    tag:         'WhatsApp · Automation',
-    description: 'Production-grade bot infrastructure with proxy rotation, stealth fingerprinting, and custom webhook architecture that scales without breaking.',
-    features:    [
-      'whatsapp-web.js integration',
-      'Puppeteer browser automation',
-      'Proxy rotation & stealth layer',
-      'p-queue rate management',
-    ],
-    accentColor: 'oz-green',
-    dotColor:    'bg-oz-green',
-    tagColor:    'text-oz-green border-oz-green/20',
-    glowClass:   'hover:shadow-[0_0_40px_rgba(0,255,136,0.06)]',
+    id:    'bots',
+    tag:   '02 — BOT INFRASTRUCTURE',
+    title: 'Automation that scales silently',
+    body:  'Browser automation, proxy rotation, stealth fingerprinting. We build the infrastructure layer that your competitors can\'t see.',
+    span:  'col-span-1',
+    items: ['Puppeteer / Playwright', 'Proxy Rotation', 'Stealth Fingerprinting'],
+    accent: '#00FF88',
   },
   {
-    id:          '03',
-    title:       'Web & App Lab',
-    tag:         'Next.js · Mobile',
-    description: 'Full-stack Next.js applications and React Native mobile apps. Server components, streaming, and edge deployment by default.',
-    features:    [
-      'Next.js 15 + React 19',
-      'React Native / PWA',
-      'PostgreSQL via Supabase',
-      'NextAuth.js v5',
-    ],
-    accentColor: 'oz-amber',
-    dotColor:    'bg-oz-amber',
-    tagColor:    'text-oz-amber border-oz-amber/20',
-    glowClass:   'hover:shadow-[0_0_40px_rgba(255,184,0,0.06)]',
+    id:    'web',
+    tag:   '03 — WEB & APP LAB',
+    title: 'Production apps that ship on time',
+    body:  'Next.js 15, React Native, Progressive Web Apps. Supabase backend, NextAuth.js, edge-deployed APIs.',
+    span:  'col-span-1',
+    items: ['Next.js 15 App Router', 'React Native', 'Supabase + Prisma'],
+    accent: '#FFB800',
   },
   {
-    id:          '04',
-    title:       'Game Lab',
-    tag:         'WebGL · Three.js',
-    description: 'Browser-based 2D/3D games and interactive experiences. WebGL-powered with silky frame rates and no native install required.',
-    features:    [
-      'Three.js 3D scenes',
-      'WebGL custom shaders',
-      'Interactive experiences',
-      'Multiplayer architecture',
-    ],
-    accentColor: 'oz-red',
-    dotColor:    'bg-oz-red',
-    tagColor:    'text-oz-red border-oz-red/20',
-    glowClass:   'hover:shadow-[0_0_40px_rgba(255,61,87,0.06)]',
+    id:    'games',
+    tag:   '04 — GAME LAB',
+    title: 'Interactive experiences',
+    body:  'WebGL and Three.js games, browser-based 2D/3D applications, and interactive product showcases.',
+    span:  'col-span-1',
+    items: ['Three.js / WebGL', 'Browser 2D/3D', 'Interactive Showcases'],
+    accent: '#FF3D57',
   },
-] as const;
+];
 
-const STATS = [
-  { value: '$0',  label: 'LLM cost at scale' },
-  { value: '9',   label: 'AI model fallbacks' },
-  { value: '3',   label: 'Languages supported' },
-  { value: '<24h', label: 'Response guarantee' },
-] as const;
+const STACK = [
+  { name: 'Next.js 15',    category: 'Frontend'  },
+  { name: 'React 19',      category: 'Frontend'  },
+  { name: 'Tailwind CSS',  category: 'Frontend'  },
+  { name: 'Framer Motion', category: 'Frontend'  },
+  { name: 'Node.js',       category: 'Backend'   },
+  { name: 'Prisma ORM',    category: 'Backend'   },
+  { name: 'PostgreSQL',    category: 'Database'  },
+  { name: 'Supabase',      category: 'Database'  },
+  { name: 'Gemini 2.0',    category: 'AI/ML'     },
+  { name: 'Groq Llama',    category: 'AI/ML'     },
+  { name: 'OpenRouter',    category: 'AI/ML'     },
+  { name: 'NextAuth.js',   category: 'Auth'      },
+  { name: 'TypeScript',    category: 'Language'  },
+  { name: 'Vercel Edge',   category: 'Infra'     },
+  { name: 'Puppeteer',     category: 'Automation'},
+  { name: 'whatsapp-web',  category: 'Messaging' },
+];
 
-const LLM_CHAIN = [
-  { name: 'gemini-2.0-flash-lite', provider: 'Google',     role: 'Primary',     color: 'text-oz-cyan',  border: 'border-oz-cyan/30',  bg: 'bg-oz-cyan/5'  },
-  { name: 'llama-3.1-8b-instant',  provider: 'Groq',       role: 'Fallback',    color: 'text-oz-green', border: 'border-oz-green/30', bg: 'bg-oz-green/5' },
-  { name: 'mistral-7b',            provider: 'OpenRouter',  role: 'Fallback B',  color: 'text-oz-amber', border: 'border-oz-amber/30', bg: 'bg-oz-amber/5' },
-] as const;
-
-const WORK_ITEMS = [
+const WORK = [
   {
-    type:    'AI_ASSISTANT',
-    label:   'AI Assistant',
-    title:   'LaForza Gym — Lahore',
-    body:    'WhatsApp bot that handles membership queries, class schedules, and payment reminders in Roman Urdu & English — 24/7 with zero human intervention.',
-    stack:   ['Gemini 2.0', 'RAG', 'WhatsApp API'],
-    status:  'DELIVERED',
+    client: 'La Forza Gyms',
+    type:   'AI Assistant',
+    desc:   'WhatsApp AI assistant for a premium fitness gym in Bahria Town Lahore. Handles membership inquiries, lead capture, and booking — trilingual, 24/7.',
+    tags:   ['WhatsApp Bot', 'Gemini API', 'Lead Capture', 'Roman Urdu'],
+    status: 'Live',
   },
   {
-    type:    'BOT_INFRASTRUCTURE',
-    label:   'Bot Infrastructure',
-    title:   'E-commerce Lead Bot',
-    body:    'Scraping + outreach pipeline for a fashion brand. Puppeteer-based, proxy-rotated, with a p-queue throttle layer. 2,000+ leads/day safely.',
-    stack:   ['Puppeteer', 'p-queue', 'Proxy Rotation'],
-    status:  'DELIVERED',
+    client: 'DHA Realty',
+    type:   'AI Assistant',
+    desc:   'Property enquiry bot for a real estate agency in DHA Lahore. Qualifies buyers, captures leads, and handles 200+ daily inquiries autonomously.',
+    tags:   ['WhatsApp Bot', 'RAG', 'Property Tech', 'Fallback Chain'],
+    status: 'Live',
   },
   {
-    type:    'WEB_APPLICATION',
-    label:   'Web Application',
-    title:   'Client Portal — SaaS',
-    body:    'Full-stack project management portal for agency clients. Real-time status, usage analytics, and API key management. Built on Next.js 15 + Prisma.',
-    stack:   ['Next.js 15', 'Prisma', 'Supabase'],
-    status:  'IN_PROGRESS',
+    client: 'Modular Bot Framework',
+    type:   'Infrastructure',
+    desc:   'Multi-tenant bot framework: one engine powering unlimited clients. SQLite memory, p-queue rate limiting, dashboard with live WebSocket monitoring.',
+    tags:   ['Node.js', 'SQLite', 'WebSocket', 'Multi-tenant'],
+    status: 'Internal',
   },
-] as const;
-
-const STACK_ROWS = [
-  { cat: 'FRONTEND',  val: 'Next.js 15  ·  React 19  ·  Tailwind CSS v4' },
-  { cat: 'BACKEND',   val: 'Node.js  ·  Prisma ORM  ·  PostgreSQL (Supabase)' },
-  { cat: 'AI / ML',   val: 'Gemini  ·  Groq  ·  OpenRouter  ·  9 models total' },
-  { cat: 'AUTH',      val: 'NextAuth.js v5  ·  GitHub & Google OAuth' },
-  { cat: 'BOTS',      val: 'whatsapp-web.js  ·  Puppeteer  ·  p-queue' },
-  { cat: 'DEPLOY',    val: 'Vercel Edge  ·  DigitalOcean  ·  Docker' },
-] as const;
-
-// ─── Micro-components ─────────────────────────────────────────────────────────
-
-function SectionLabel({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="flex items-center gap-3 mb-4">
-      <span className="h-px w-8 bg-oz-cyan/40" />
-      <span className="font-mono text-xs text-oz-cyan tracking-[0.2em] uppercase">{children}</span>
-    </div>
-  );
-}
-
-function StatusBadge({ status }: { status: string }) {
-  const map: Record<string, { label: string; color: string }> = {
-    DELIVERED:   { label: 'Delivered',   color: 'text-oz-green border-oz-green/20 bg-oz-green/5' },
-    IN_PROGRESS: { label: 'In Progress', color: 'text-oz-amber border-oz-amber/20 bg-oz-amber/5' },
-    MAINTENANCE: { label: 'Maintenance', color: 'text-oz-text-3 border-oz-border' },
-  };
-  const { label, color } = map[status] ?? { label: status, color: 'text-oz-text-3 border-oz-border' };
-  return (
-    <span className={`font-mono text-2xs px-2 py-0.5 rounded-sm border tracking-widest uppercase ${color}`}>
-      {label}
-    </span>
-  );
-}
-
-// ─── Footer ───────────────────────────────────────────────────────────────────
-
-function Footer() {
-  return (
-    <footer className="border-t border-oz-border bg-oz-black-2">
-      <div className="max-w-7xl mx-auto px-6 py-12">
-        <div className="grid md:grid-cols-3 gap-10 mb-10">
-          {/* Brand */}
-          <div>
-            <p className="font-mono text-sm tracking-widest uppercase mb-3">
-              <span className="text-oz-cyan">OZ</span>
-              <span className="text-oz-text-3 mx-1">/</span>
-              <span className="text-oz-text">LABS</span>
-            </p>
-            <p className="text-oz-text-3 text-sm leading-relaxed">
-              Deep-tech agency. Lahore, Pakistan.
-              <br />
-              Building AI infrastructure for local business.
-            </p>
-          </div>
-
-          {/* Navigation */}
-          <div>
-            <p className="font-mono text-xs text-oz-text-3 tracking-widest uppercase mb-4">Navigation</p>
-            <div className="flex flex-col gap-2">
-              {[
-                { href: '/#services',    label: 'Services' },
-                { href: '/transparency', label: 'Transparency' },
-                { href: '/#work',        label: 'Work' },
-              ].map(({ href, label }) => (
-                <a
-                  key={href}
-                  href={href}
-                  className="font-mono text-xs text-oz-text-3 hover:text-oz-cyan transition-colors duration-200 tracking-wider"
-                >
-                  {label}
-                </a>
-              ))}
-            </div>
-          </div>
-
-          {/* Contact */}
-          <div>
-            <p className="font-mono text-xs text-oz-text-3 tracking-widest uppercase mb-4">Contact</p>
-            <div className="flex flex-col gap-2">
-              <a
-                href="mailto:founders@ozonelabs.io"
-                className="font-mono text-xs text-oz-text-3 hover:text-oz-cyan transition-colors duration-200 tracking-wider"
-              >
-                founders@ozonelabs.io
-              </a>
-              <a
-                href="https://instagram.com/ozonelabs"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-mono text-xs text-oz-text-3 hover:text-oz-cyan transition-colors duration-200 tracking-wider"
-              >
-                @ozonelabs on Instagram
-              </a>
-            </div>
-          </div>
-        </div>
-
-        {/* Bottom row */}
-        <div className="pt-8 border-t border-oz-border flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="font-mono text-2xs text-oz-text-3 tracking-wider">
-            © {new Date().getFullYear()} Ozone Labs. All rights reserved.
-          </p>
-          <div className="flex items-center gap-2">
-            <span className="h-1.5 w-1.5 rounded-full bg-oz-green animate-status-pulse" />
-            <span className="font-mono text-2xs text-oz-text-3 tracking-wider">All systems operational</span>
-          </div>
-        </div>
-      </div>
-    </footer>
-  );
-}
+];
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
@@ -247,367 +118,500 @@ export default function HomePage() {
     <>
       <Navigation />
 
-      <main className="relative overflow-x-hidden">
+      <main className="bg-oz-black text-oz-text overflow-x-hidden">
 
-        {/* ══════════════════════════════════════════════════════════
-            §1  HERO
-        ══════════════════════════════════════════════════════════ */}
-        <section className="relative min-h-screen flex flex-col justify-center overflow-hidden pt-16">
+        {/* ── HERO ─────────────────────────────────────────────────────────── */}
+        <section className="relative min-h-screen flex flex-col justify-center pt-16">
           {/* Grid background */}
-          <div className="absolute inset-0 bg-grid pointer-events-none" />
-          {/* Fade overlay */}
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-oz-black pointer-events-none" />
-          {/* Radial glow behind terminal */}
-          <div
-            className="absolute right-0 top-1/2 -translate-y-1/2 w-[700px] h-[700px] pointer-events-none"
-            style={{ background: 'radial-gradient(ellipse at center, rgba(0,229,255,0.04) 0%, transparent 70%)' }}
-          />
+          <div className="absolute inset-0 bg-grid opacity-30 pointer-events-none" />
+          {/* Radial glow from bottom-left */}
+          <div className="absolute inset-0 pointer-events-none"
+            style={{ background: 'radial-gradient(ellipse 60% 50% at 10% 90%, rgba(0,229,255,0.06) 0%, transparent 70%)' }} />
 
-          <div className="relative z-10 max-w-7xl mx-auto px-6 w-full py-20 lg:py-28">
-            <div className="grid lg:grid-cols-[1fr_1.1fr] gap-16 items-center">
+          <div className="relative z-10 max-w-7xl mx-auto px-6 w-full">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center py-20 lg:py-0 min-h-[calc(100vh-64px)]">
 
-              {/* ── Left: Copy ── */}
-              <div>
-                {/* Status badge */}
-                <div className="inline-flex items-center gap-2.5 border border-oz-border-2 rounded-sm px-3 py-1.5 mb-8 bg-oz-surface/50">
-                  <span className="h-1.5 w-1.5 rounded-full bg-oz-green animate-status-pulse shrink-0" />
-                  <span className="font-mono text-xs text-oz-text-3 tracking-widest uppercase">
-                    Lahore, Pakistan — Open to new projects
+              {/* Left: Copy */}
+              <div className="flex flex-col justify-center">
+                {/* Eyebrow */}
+                <div className="flex items-center gap-3 mb-8">
+                  <span className="h-px w-6 bg-oz-cyan" />
+                  <span className="font-mono text-xs text-oz-cyan tracking-[0.25em] uppercase">
+                    Ozone Labs — Lahore, Pakistan
                   </span>
                 </div>
 
                 {/* Headline */}
-                <h1 className="font-display text-[2.8rem] sm:text-5xl lg:text-[3.5rem] xl:text-[4rem] font-bold leading-[1.06] tracking-[-0.025em] mb-6">
-                  <span className="text-gradient-white block">AI Infrastructure</span>
-                  <span className="text-gradient-white">for </span>
-                  <span className="text-gradient-cyan">Local Business.</span>
+                <h1 className="font-display text-5xl sm:text-6xl xl:text-7xl font-bold tracking-tight leading-[1.0] mb-6">
+                  We build<br />
+                  <span className="text-gradient-cyan">AI that works</span><br />
+                  for business<span className="text-oz-cyan">.</span>
                 </h1>
 
-                {/* Subheadline */}
-                <p className="text-oz-text-2 text-lg leading-relaxed mb-10 max-w-lg">
-                  Production-ready AI assistants, WhatsApp bot infrastructure, and full-stack web apps —
-                  all running on <span className="text-oz-text font-medium">zero-cost LLM architecture</span>.
+                {/* Sub */}
+                <p className="text-oz-text-2 text-lg leading-relaxed mb-10 max-w-md">
+                  AI assistants, bots, apps, and games.
+                  No wrappers. No fluff. Just production infrastructure
+                  that generates real leads.
                 </p>
 
-                {/* CTA buttons */}
-                <div className="flex flex-wrap gap-3">
-                  <Button
-                    variant="primary"
-                    size="lg"
-                    onClick={() => { window.location.href = 'mailto:founders@ozonelabs.io'; }}
+                {/* CTAs */}
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <a
+                    href="mailto:founders@ozonelabs.io"
+                    className={cn(
+                      'inline-flex items-center justify-center gap-2',
+                      'font-mono text-sm font-bold tracking-widest uppercase',
+                      'bg-oz-cyan text-oz-black',
+                      'h-12 px-8 rounded-sm',
+                      'hover:bg-white hover:shadow-[0_0_32px_rgba(0,229,255,0.5)]',
+                      'transition-all duration-200'
+                    )}
                   >
                     Start a Project
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="lg"
-                    onClick={() => { window.location.href = '/transparency'; }}
-                  >
-                    View Transparency
-                  </Button>
-                </div>
-
-                {/* Stats row */}
-                <div className="mt-14 pt-8 border-t border-oz-border grid grid-cols-2 sm:grid-cols-4 gap-6">
-                  {STATS.map(({ value, label }) => (
-                    <div key={label}>
-                      <p className="font-mono text-2xl font-bold text-oz-cyan glow-text mb-1">{value}</p>
-                      <p className="font-mono text-2xs text-oz-text-3 tracking-wider uppercase leading-tight">{label}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* ── Right: Terminal ── */}
-              <div className="flex flex-col gap-3">
-                {/* Terminal header hint */}
-                <div className="flex items-center gap-2 px-1">
-                  <span className="font-mono text-2xs text-oz-text-3 tracking-widest uppercase">Live Demo</span>
-                  <span className="h-px flex-1 bg-oz-border" />
-                  <span className="font-mono text-2xs text-oz-cyan/60 tracking-wider">Ask anything about Ozone Labs</span>
-                </div>
-                <OzoneTerminal />
-                <p className="font-mono text-2xs text-oz-text-3 text-center tracking-wider">
-                  Type <span className="text-oz-cyan">help</span> · <span className="text-oz-cyan">services</span> · <span className="text-oz-cyan">stack</span> · or any question
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ══════════════════════════════════════════════════════════
-            §2  SERVICES
-        ══════════════════════════════════════════════════════════ */}
-        <section id="services" className="relative py-28 border-t border-oz-border">
-          <div className="max-w-7xl mx-auto px-6">
-            {/* Header */}
-            <div className="mb-16">
-              <SectionLabel>Services</SectionLabel>
-              <h2 className="font-display text-4xl lg:text-5xl font-bold tracking-tight text-gradient-white max-w-lg">
-                What we build<span className="text-oz-cyan">.</span>
-              </h2>
-            </div>
-
-            {/* Cards grid */}
-            <div className="grid md:grid-cols-2 gap-5">
-              {SERVICES.map((svc) => (
-                <GlowCard
-                  key={svc.id}
-                  as="article"
-                  className={`p-8 flex flex-col gap-6 transition-all duration-300 ${svc.glowClass}`}
-                >
-                  {/* Card header */}
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <span className={`font-mono text-2xs px-2 py-0.5 rounded-sm border tracking-widest uppercase ${svc.tagColor}`}>
-                        {svc.tag}
-                      </span>
-                      <div className="flex items-center gap-3 mt-4">
-                        <span className="font-mono text-xs text-oz-text-3">{svc.id}</span>
-                        <h3 className="font-display text-xl font-bold text-oz-text">{svc.title}</h3>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Description */}
-                  <p className="text-oz-text-2 text-sm leading-relaxed">{svc.description}</p>
-
-                  {/* Feature list */}
-                  <ul className="flex flex-col gap-2 mt-auto">
-                    {svc.features.map((feat) => (
-                      <li key={feat} className="flex items-center gap-2.5">
-                        <span className={`shrink-0 h-1 w-1 rounded-full ${svc.dotColor}`} />
-                        <span className="font-mono text-xs text-oz-text-3 tracking-wide">{feat}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </GlowCard>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ══════════════════════════════════════════════════════════
-            §3  ARCHITECTURE — Zero-cost LLM chain
-        ══════════════════════════════════════════════════════════ */}
-        <section className="relative py-28 border-t border-oz-border overflow-hidden">
-          {/* Ambient glow */}
-          <div
-            className="absolute inset-0 pointer-events-none"
-            style={{ background: 'radial-gradient(ellipse 60% 40% at 50% 50%, rgba(0,229,255,0.025) 0%, transparent 70%)' }}
-          />
-
-          <div className="relative z-10 max-w-7xl mx-auto px-6">
-            <div className="grid lg:grid-cols-[1fr_1.4fr] gap-16 items-center">
-
-              {/* Left: copy */}
-              <div>
-                <SectionLabel>Architecture</SectionLabel>
-                <h2 className="font-display text-4xl lg:text-5xl font-bold tracking-tight text-gradient-white mb-6">
-                  Zero-cost LLMs<span className="text-oz-cyan">.</span>
-                </h2>
-                <p className="text-oz-text-2 leading-relaxed mb-8">
-                  We chain free-tier AI providers — Gemini, Groq, OpenRouter — so your product has 9 model fallbacks
-                  and <strong className="text-oz-text font-medium">$0 LLM cost at scale</strong>.
-                  If one provider goes down, the next one picks up instantly.
-                </p>
-
-                {/* Stack table */}
-                <div className="flex flex-col divide-y divide-oz-border border border-oz-border rounded-sm">
-                  {STACK_ROWS.map(({ cat, val }) => (
-                    <div key={cat} className="flex gap-4 px-4 py-3 hover:bg-oz-surface/50 transition-colors duration-150">
-                      <span className="font-mono text-2xs text-oz-text-3 tracking-widest uppercase w-20 shrink-0 mt-0.5">{cat}</span>
-                      <span className="font-mono text-xs text-oz-text-2 leading-relaxed">{val}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Right: LLM chain visual */}
-              <div className="flex flex-col gap-4">
-                <p className="font-mono text-xs text-oz-text-3 tracking-widest uppercase mb-2">
-                  Request routing — live chain
-                </p>
-
-                {/* User input */}
-                <div className="flex items-center gap-3 px-4 py-3 bg-oz-surface border border-oz-border-2 rounded-sm">
-                  <span className="text-oz-cyan/60 font-mono text-sm">❯</span>
-                  <span className="font-mono text-sm text-oz-text-2">User message received</span>
-                  <span className="ml-auto font-mono text-2xs text-oz-text-3 tracking-wider">INPUT</span>
-                </div>
-
-                {/* Arrow down */}
-                <div className="flex justify-center">
-                  <div className="flex flex-col items-center gap-1">
-                    <span className="h-4 w-px bg-oz-border-2" />
-                    <span className="font-mono text-xs text-oz-text-3">route</span>
-                    <span className="h-4 w-px bg-oz-border-2" />
-                  </div>
-                </div>
-
-                {/* LLM providers */}
-                {LLM_CHAIN.map((model, i) => (
-                  <div key={model.name}>
-                    <div className={`relative px-4 py-4 border rounded-sm ${model.bg} ${model.border} transition-all duration-300`}>
-                      <div className="flex items-center justify-between gap-4">
-                        <div className="flex items-center gap-3">
-                          {/* Status dot */}
-                          <span className={`h-2 w-2 rounded-full ${i === 0 ? 'bg-oz-green animate-status-pulse' : 'bg-oz-text-3/40'}`} />
-                          <div>
-                            <p className={`font-mono text-sm font-bold ${model.color}`}>{model.provider}</p>
-                            <p className="font-mono text-xs text-oz-text-3">{model.name}</p>
-                          </div>
-                        </div>
-                        <span className={`font-mono text-2xs px-2 py-0.5 rounded-sm border tracking-widest uppercase ${model.color} ${model.border}`}>
-                          {model.role}
-                        </span>
-                      </div>
-                      {i === 0 && (
-                        <p className="font-mono text-2xs text-oz-green/60 mt-2 tracking-wider">← Currently active</p>
-                      )}
-                    </div>
-                    {i < LLM_CHAIN.length - 1 && (
-                      <div className="flex justify-center my-2">
-                        <div className="flex flex-col items-center gap-1">
-                          <span className="h-3 w-px bg-oz-border" />
-                          <span className="font-mono text-2xs text-oz-text-3 tracking-wider">on failure</span>
-                          <span className="h-3 w-px bg-oz-border" />
-                        </div>
-                      </div>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+                    </svg>
+                  </a>
+                  <Link
+                    href="#services"
+                    className={cn(
+                      'inline-flex items-center justify-center',
+                      'font-mono text-sm tracking-widest uppercase',
+                      'border border-oz-border-2 text-oz-text-2',
+                      'h-12 px-8 rounded-sm',
+                      'hover:border-oz-cyan/40 hover:text-oz-text',
+                      'transition-all duration-200'
                     )}
-                  </div>
-                ))}
-
-                {/* Output */}
-                <div className="flex justify-center my-2">
-                  <div className="flex flex-col items-center gap-1">
-                    <span className="h-4 w-px bg-oz-border-2" />
-                    <span className="font-mono text-xs text-oz-text-3">stream</span>
-                    <span className="h-4 w-px bg-oz-border-2" />
-                  </div>
-                </div>
-                <div className="flex items-center gap-3 px-4 py-3 bg-oz-surface border border-oz-border-2 rounded-sm">
-                  <span className="h-2 w-2 rounded-full bg-oz-cyan animate-status-pulse" />
-                  <span className="font-mono text-sm text-oz-cyan">Streaming response to client</span>
-                  <span className="ml-auto font-mono text-2xs text-oz-text-3 tracking-wider">SSE</span>
+                  >
+                    View Services
+                  </Link>
                 </div>
               </div>
+
+              {/* Right: Terminal */}
+              <div className="flex flex-col gap-4">
+                <p className="font-mono text-xs text-oz-text-3 tracking-widest uppercase mb-1">
+                  Live Terminal — Talk to OzoneOS
+                </p>
+                <Suspense fallback={
+                  <div className="h-[460px] bg-oz-surface border border-oz-border rounded-sm animate-pulse" />
+                }>
+                  <OzoneTerminal />
+                </Suspense>
+                <p className="font-mono text-2xs text-oz-text-3 tracking-wider">
+                  Try: <span className="text-oz-cyan cursor-pointer">help</span>,{' '}
+                  <span className="text-oz-cyan">services</span>, or ask anything about what we build.
+                </p>
+              </div>
+
             </div>
+          </div>
+
+          {/* Scroll indicator */}
+          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-float">
+            <span className="font-mono text-2xs text-oz-text-3 tracking-widest uppercase">scroll</span>
+            <div className="h-8 w-px bg-gradient-to-b from-oz-border to-transparent" />
           </div>
         </section>
 
-        {/* ══════════════════════════════════════════════════════════
-            §4  WORK
-        ══════════════════════════════════════════════════════════ */}
-        <section id="work" className="relative py-28 border-t border-oz-border">
+        {/* ── STATS MARQUEE ─────────────────────────────────────────────────── */}
+        <section className="border-y border-oz-border bg-oz-surface/40 py-10">
           <div className="max-w-7xl mx-auto px-6">
-            {/* Header */}
-            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-16">
-              <div>
-                <SectionLabel>Work</SectionLabel>
-                <h2 className="font-display text-4xl lg:text-5xl font-bold tracking-tight text-gradient-white">
-                  Recent projects<span className="text-oz-cyan">.</span>
-                </h2>
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => { window.location.href = 'mailto:founders@ozonelabs.io'; }}
-              >
-                Discuss a project →
-              </Button>
-            </div>
-
-            {/* Project cards */}
-            <div className="grid md:grid-cols-3 gap-5">
-              {WORK_ITEMS.map((item) => (
-                <GlowCard
-                  key={item.title}
-                  as="article"
-                  className="p-6 flex flex-col gap-5 animate-grid-in"
-                >
-                  {/* Type + status */}
-                  <div className="flex items-center justify-between gap-3">
-                    <span className="font-mono text-2xs text-oz-text-3 tracking-widest uppercase">{item.label}</span>
-                    <StatusBadge status={item.status} />
-                  </div>
-
-                  {/* Title */}
-                  <h3 className="font-display text-lg font-bold text-oz-text leading-tight">{item.title}</h3>
-
-                  {/* Body */}
-                  <p className="text-oz-text-2 text-sm leading-relaxed flex-1">{item.body}</p>
-
-                  {/* Stack tags */}
-                  <div className="flex flex-wrap gap-2 pt-2 border-t border-oz-border">
-                    {item.stack.map((tag) => (
-                      <span
-                        key={tag}
-                        className="font-mono text-2xs px-2 py-0.5 border border-oz-border-2 text-oz-text-3 tracking-wider rounded-sm"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                </GlowCard>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-0 divide-x divide-oz-border">
+              {STATS.map(({ value, label, sub }) => (
+                <div key={label} className="flex flex-col items-center text-center px-8 first:pl-0 last:pr-0 py-4">
+                  <span className="font-display text-4xl lg:text-5xl font-bold text-oz-text tracking-tight mb-1">
+                    {value}
+                    {value === '99.9' && <span className="text-oz-cyan text-2xl">%</span>}
+                  </span>
+                  <span className="font-mono text-xs text-oz-text-2 tracking-wider mb-1">{label}</span>
+                  <span className="font-mono text-2xs text-oz-text-3 tracking-wider">{sub}</span>
+                </div>
               ))}
             </div>
           </div>
         </section>
 
-        {/* ══════════════════════════════════════════════════════════
-            §5  CTA
-        ══════════════════════════════════════════════════════════ */}
-        <section className="relative py-32 border-t border-oz-border overflow-hidden">
-          {/* Glow effect */}
-          <div
-            className="absolute inset-0 pointer-events-none"
-            style={{ background: 'radial-gradient(ellipse 50% 60% at 50% 100%, rgba(0,229,255,0.05) 0%, transparent 70%)' }}
-          />
-          {/* Grid */}
-          <div className="absolute inset-0 bg-grid opacity-40 pointer-events-none" />
+        {/* ── SERVICES BENTO GRID ───────────────────────────────────────────── */}
+        <section id="services" className="py-28 relative">
+          <div className="absolute inset-0 bg-grid opacity-20 pointer-events-none" />
+          <div className="relative z-10 max-w-7xl mx-auto px-6">
 
-          <div className="relative z-10 max-w-3xl mx-auto px-6 text-center">
-            <SectionLabel>Get in touch</SectionLabel>
+            {/* Section header */}
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-14">
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="h-px w-6 bg-oz-cyan/40" />
+                  <span className="font-mono text-xs text-oz-cyan tracking-[0.2em] uppercase">What we build</span>
+                </div>
+                <h2 className="font-display text-4xl lg:text-5xl font-bold tracking-tight">
+                  Four departments<span className="text-oz-cyan">.</span><br />
+                  One studio<span className="text-oz-cyan">.</span>
+                </h2>
+              </div>
+              <p className="text-oz-text-3 font-mono text-xs tracking-wider max-w-xs leading-relaxed">
+                Specialised teams working in parallel. Same codebase standards across every project.
+              </p>
+            </div>
 
-            <h2 className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight mb-6">
-              <span className="text-gradient-white">Ready to build</span>
-              <br />
-              <span className="text-gradient-cyan">something real?</span>
+            {/* Bento grid */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {SERVICES.map((svc) => (
+                <ServiceCard key={svc.id} {...svc} />
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ── HOW IT WORKS ──────────────────────────────────────────────────── */}
+        <section className="py-28 border-t border-oz-border bg-oz-surface/20">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="flex items-center gap-3 mb-4">
+              <span className="h-px w-6 bg-oz-cyan/40" />
+              <span className="font-mono text-xs text-oz-cyan tracking-[0.2em] uppercase">Architecture</span>
+            </div>
+            <h2 className="font-display text-4xl lg:text-5xl font-bold tracking-tight mb-16">
+              Zero-cost AI.<br />Production-grade<span className="text-oz-cyan">.</span>
             </h2>
 
-            <p className="text-oz-text-2 text-lg leading-relaxed mb-10 max-w-xl mx-auto">
-              Tell us what you need. We scope, quote, and ship — usually within a week of alignment.
-              No bloated agencies, no hidden fees.
-            </p>
-
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Button
-                variant="primary"
-                size="xl"
-                onClick={() => { window.location.href = 'mailto:founders@ozonelabs.io'; }}
-              >
-                founders@ozonelabs.io
-              </Button>
-              <Button
-                variant="outline"
-                size="xl"
-                onClick={() => { window.location.href = '/transparency'; }}
-              >
-                View transparency hub
-              </Button>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-px bg-oz-border rounded-sm overflow-hidden">
+              {[
+                {
+                  n: '01',
+                  title: 'Smart Routing',
+                  body: 'Each message is classified as simple or complex. Simple messages go to the fastest, cheapest model. Complex queries route to the most capable.',
+                },
+                {
+                  n: '02',
+                  title: '9-Model Fallback',
+                  body: 'Gemini → Groq → OpenRouter. If any provider throttles or goes down, the next one fires automatically. Zero downtime, zero manual intervention.',
+                },
+                {
+                  n: '03',
+                  title: 'Memory + Context',
+                  body: 'SQLite in WAL mode with a sliding context window. Every session persists history. Language is detected once and pinned — no drift mid-conversation.',
+                },
+              ].map(({ n, title, body }) => (
+                <div key={n} className="bg-oz-black p-8 lg:p-10">
+                  <p className="font-mono text-oz-cyan text-xs tracking-[0.2em] mb-6">{n}</p>
+                  <h3 className="font-display text-xl font-bold mb-4">{title}</h3>
+                  <p className="text-oz-text-2 text-sm leading-relaxed">{body}</p>
+                </div>
+              ))}
             </div>
-
-            {/* Trust note */}
-            <p className="font-mono text-xs text-oz-text-3 mt-8 tracking-wider">
-              Response within 24 hours · Based in Lahore, Pakistan · Serving global clients
-            </p>
           </div>
         </section>
 
-      </main>
+        {/* ── WORK ─────────────────────────────────────────────────────────── */}
+        <section id="work" className="py-28 border-t border-oz-border">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="flex items-center gap-3 mb-4">
+              <span className="h-px w-6 bg-oz-cyan/40" />
+              <span className="font-mono text-xs text-oz-cyan tracking-[0.2em] uppercase">Selected Work</span>
+            </div>
+            <h2 className="font-display text-4xl lg:text-5xl font-bold tracking-tight mb-16">
+              Built and<br />deployed<span className="text-oz-cyan">.</span>
+            </h2>
 
-      <Footer />
+            <div className="flex flex-col gap-px bg-oz-border rounded-sm overflow-hidden">
+              {WORK.map((w, i) => (
+                <WorkRow key={i} {...w} index={i} />
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ── TECH STACK ────────────────────────────────────────────────────── */}
+        <section className="py-28 border-t border-oz-border bg-oz-surface/20">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-8 mb-14">
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="h-px w-6 bg-oz-cyan/40" />
+                  <span className="font-mono text-xs text-oz-cyan tracking-[0.2em] uppercase">Transparency Hub</span>
+                </div>
+                <h2 className="font-display text-4xl lg:text-5xl font-bold tracking-tight">
+                  Open stack<span className="text-oz-cyan">.</span><br />
+                  No black boxes<span className="text-oz-cyan">.</span>
+                </h2>
+              </div>
+              <Link
+                href="/transparency"
+                className="font-mono text-xs tracking-widest uppercase text-oz-cyan border border-oz-cyan/20 hover:border-oz-cyan px-6 py-3 rounded-sm transition-all duration-200 shrink-0 self-start sm:self-auto"
+              >
+                View System Status →
+              </Link>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              {STACK.map(({ name, category }) => (
+                <StackTag key={name} name={name} category={category} />
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ── ABOUT ─────────────────────────────────────────────────────────── */}
+        <section id="about" className="py-28 border-t border-oz-border">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center">
+
+              <div>
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="h-px w-6 bg-oz-cyan/40" />
+                  <span className="font-mono text-xs text-oz-cyan tracking-[0.2em] uppercase">About</span>
+                </div>
+                <h2 className="font-display text-4xl lg:text-5xl font-bold tracking-tight mb-8">
+                  Deep tech.<br />
+                  Not a wrapper<span className="text-oz-cyan">.</span>
+                </h2>
+                <div className="space-y-4 text-oz-text-2 leading-relaxed">
+                  <p>
+                    Ozone Labs is a technical agency based in Lahore, Pakistan.
+                    We don't resell SaaS tools with a markup — we build the underlying infrastructure.
+                  </p>
+                  <p>
+                    Our AI architecture uses a 9-model fallback chain across Gemini, Groq, and OpenRouter.
+                    That means $0 LLM cost at our volume, with better reliability than any single-provider setup.
+                  </p>
+                  <p>
+                    Everything we build ships with trilingual support out of the box:
+                    English, Roman Urdu, and Urdu script — because that's what your customers actually speak.
+                  </p>
+                </div>
+              </div>
+
+              {/* Terminal-style "manifest" */}
+              <div className="bg-oz-surface border border-oz-border rounded-sm p-8 font-mono text-sm">
+                <p className="text-oz-text-3 mb-6 text-xs tracking-widest uppercase">ozonelabs.manifest</p>
+                {[
+                  ['Performance',    'Ship fast. Iterate faster.'],
+                  ['Transparency',   'Open stack. Real status. No black boxes.'],
+                  ['Intelligence',   'Agentic workflows over scripted bots.'],
+                  ['Language',       'English + Roman Urdu + Urdu — always.'],
+                  ['Cost',           'Free-tier LLM infrastructure by design.'],
+                  ['Reliability',    'Multi-provider fallback. 9 models deep.'],
+                ].map(([key, val]) => (
+                  <div key={key} className="flex gap-4 py-2.5 border-b border-oz-border last:border-0">
+                    <span className="text-oz-cyan w-32 shrink-0">{key}</span>
+                    <span className="text-oz-text-2">{val}</span>
+                  </div>
+                ))}
+              </div>
+
+            </div>
+          </div>
+        </section>
+
+        {/* ── CTA ───────────────────────────────────────────────────────────── */}
+        <section className="relative py-32 border-t border-oz-border overflow-hidden">
+          <div className="absolute inset-0 bg-grid opacity-20 pointer-events-none" />
+          <div className="absolute inset-0 pointer-events-none"
+            style={{ background: 'radial-gradient(ellipse 80% 60% at 50% 50%, rgba(0,229,255,0.05) 0%, transparent 70%)' }} />
+
+          <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
+            <p className="font-mono text-xs text-oz-cyan tracking-[0.25em] uppercase mb-6">Ready to ship?</p>
+            <h2 className="font-display text-5xl lg:text-7xl font-bold tracking-tight mb-8">
+              Let's build<br />
+              something real<span className="text-oz-cyan">.</span>
+            </h2>
+            <p className="text-oz-text-2 text-lg leading-relaxed mb-12 max-w-xl mx-auto">
+              Tell us what you need. We scope, prototype, and ship.
+              Response within 24 hours.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <a
+                href="mailto:founders@ozonelabs.io"
+                className={cn(
+                  'inline-flex items-center justify-center gap-3',
+                  'font-mono text-sm font-bold tracking-widest uppercase',
+                  'bg-oz-cyan text-oz-black',
+                  'h-14 px-10 rounded-sm',
+                  'hover:bg-white hover:shadow-[0_0_60px_rgba(0,229,255,0.6)]',
+                  'transition-all duration-200'
+                )}
+              >
+                founders@ozonelabs.io
+              </a>
+              <a
+                href="https://instagram.com/ozonelabs"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={cn(
+                  'inline-flex items-center justify-center',
+                  'font-mono text-sm tracking-widest uppercase',
+                  'border border-oz-border-2 text-oz-text-2',
+                  'h-14 px-10 rounded-sm',
+                  'hover:border-oz-cyan/40 hover:text-oz-text',
+                  'transition-all duration-200'
+                )}
+              >
+                @ozonelabs
+              </a>
+            </div>
+          </div>
+        </section>
+
+        {/* ── FOOTER ────────────────────────────────────────────────────────── */}
+        <footer className="border-t border-oz-border py-10">
+          <div className="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <p className="font-mono text-xs text-oz-text-3 tracking-widest">
+              <span className="text-oz-cyan">OZ</span>
+              <span className="text-oz-border-2 mx-1.5">/</span>
+              LABS — Lahore, Pakistan
+            </p>
+            <p className="font-mono text-xs text-oz-text-3 tracking-wider">
+              © {new Date().getFullYear()} Ozone Labs. Built with Next.js 15 + Gemini.
+            </p>
+            <Link
+              href="/transparency"
+              className="font-mono text-xs text-oz-text-3 hover:text-oz-cyan tracking-wider transition-colors duration-150 flex items-center gap-2"
+            >
+              <span className="h-1.5 w-1.5 rounded-full bg-oz-green animate-status-pulse" />
+              All systems operational
+            </Link>
+          </div>
+        </footer>
+
+      </main>
     </>
+  );
+}
+
+// ─── Sub-components (colocated, no extra files needed) ────────────────────────
+
+const CATEGORY_COLORS: Record<string, string> = {
+  'Frontend':   'rgba(0,229,255,0.08)',
+  'Backend':    'rgba(0,255,136,0.08)',
+  'Database':   'rgba(255,184,0,0.08)',
+  'AI/ML':      'rgba(255,61,87,0.08)',
+  'Auth':       'rgba(0,229,255,0.06)',
+  'Language':   'rgba(0,229,255,0.06)',
+  'Infra':      'rgba(0,255,136,0.06)',
+  'Automation': 'rgba(255,184,0,0.06)',
+  'Messaging':  'rgba(0,229,255,0.06)',
+};
+
+const CATEGORY_TEXT: Record<string, string> = {
+  'Frontend':   '#00E5FF',
+  'Backend':    '#00FF88',
+  'Database':   '#FFB800',
+  'AI/ML':      '#FF3D57',
+  'Auth':       '#9898B0',
+  'Language':   '#9898B0',
+  'Infra':      '#00FF88',
+  'Automation': '#FFB800',
+  'Messaging':  '#00E5FF',
+};
+
+function StackTag({ name, category }: { name: string; category: string }) {
+  return (
+    <span
+      className="font-mono text-xs px-3 py-1.5 rounded-sm border border-oz-border tracking-wider"
+      style={{
+        background: CATEGORY_COLORS[category] ?? 'rgba(255,255,255,0.03)',
+        color:      CATEGORY_TEXT[category]   ?? '#9898B0',
+      }}
+    >
+      {name}
+    </span>
+  );
+}
+
+function ServiceCard({
+  tag, title, body, span, items, accent,
+}: {
+  tag: string; title: string; body: string;
+  span: string; items: string[]; accent: string;
+}) {
+  // First card spans 2 columns on md+
+  const isWide = span === 'col-span-2';
+
+  return (
+    <div
+      className={cn(
+        'group relative bg-oz-surface border border-oz-border rounded-sm p-8',
+        'hover:border-oz-border-2 transition-all duration-300',
+        isWide ? 'md:col-span-2' : 'col-span-1',
+        // Top accent line on hover
+        'overflow-hidden'
+      )}
+    >
+      {/* Top accent line */}
+      <div
+        className="absolute top-0 inset-x-0 h-px opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+        style={{ background: `linear-gradient(90deg, transparent, ${accent}, transparent)` }}
+      />
+
+      <p className="font-mono text-2xs tracking-widest uppercase mb-5"
+        style={{ color: accent }}
+      >
+        {tag}
+      </p>
+
+      <h3 className={cn(
+        'font-display font-bold tracking-tight mb-4 text-oz-text',
+        isWide ? 'text-2xl lg:text-3xl' : 'text-xl'
+      )}>
+        {title}
+      </h3>
+
+      <p className="text-oz-text-2 text-sm leading-relaxed mb-8">{body}</p>
+
+      <div className="flex flex-wrap gap-2">
+        {items.map(item => (
+          <span
+            key={item}
+            className="font-mono text-2xs px-2.5 py-1 rounded-sm border border-oz-border text-oz-text-3 tracking-wider"
+          >
+            {item}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function WorkRow({
+  client, type, desc, tags, status, index,
+}: {
+  client: string; type: string; desc: string;
+  tags: string[]; status: string; index: number;
+}) {
+  return (
+    <div className="bg-oz-black grid grid-cols-1 lg:grid-cols-[1fr_2fr_auto] gap-6 p-8 group hover:bg-oz-surface/40 transition-colors duration-200">
+      <div>
+        <p className="font-mono text-2xs text-oz-text-3 tracking-widest uppercase mb-2">{type}</p>
+        <h3 className="font-display text-xl font-bold text-oz-text">{client}</h3>
+        <span className={cn(
+          'inline-flex items-center gap-1.5 font-mono text-2xs tracking-widest uppercase mt-3',
+          status === 'Live' ? 'text-oz-green' : 'text-oz-text-3'
+        )}>
+          <span className={cn(
+            'h-1.5 w-1.5 rounded-full',
+            status === 'Live' ? 'bg-oz-green animate-status-pulse' : 'bg-oz-text-3'
+          )} />
+          {status}
+        </span>
+      </div>
+
+      <div>
+        <p className="text-oz-text-2 text-sm leading-relaxed mb-4">{desc}</p>
+        <div className="flex flex-wrap gap-2">
+          {tags.map(tag => (
+            <span key={tag} className="font-mono text-2xs px-2.5 py-1 border border-oz-border text-oz-text-3 rounded-sm tracking-wider">
+              {tag}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      <div className="flex items-center self-center">
+        <span className="font-mono text-xs text-oz-text-3 tracking-widest">
+          {String(index + 1).padStart(2, '0')}
+        </span>
+      </div>
+    </div>
   );
 }
