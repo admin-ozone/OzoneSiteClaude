@@ -4,7 +4,6 @@ const nextConfig: NextConfig = {
   // ── Experimental Features ─────────────────────────────────────────────────
   experimental: {
     // React 19 PPR: partial pre-rendering for shell + streaming content
-    ppr: true,
     // Enable typed routes for compile-time route safety
     typedRoutes: true,
     // Optimise server component imports
