@@ -2,10 +2,12 @@ import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   // ── Experimental Features  ─────────────────────────────────────────────────
+  typedRoutes: true,
+  
   experimental: {
     // React 19 PPR: partial pre-rendering for shell + streaming content
     // Enable typed routes for compile-time route safety
-    typedRoutes: true,
+    
     // Optimise server component imports
     optimizePackageImports: [
       'framer-motion',
