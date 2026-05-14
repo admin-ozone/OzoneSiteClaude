@@ -1,7 +1,7 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  // ── Experimental Features ─────────────────────────────────────────────────
+  // ── Experimental Features  ─────────────────────────────────────────────────
   experimental: {
     // React 19 PPR: partial pre-rendering for shell + streaming content
     // Enable typed routes for compile-time route safety
