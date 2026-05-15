@@ -145,7 +145,7 @@ export default function LoginPage() {
 
         <p className="font-mono text-2xs text-oz-text-3 text-center mt-6 tracking-wider">
           Access is by invitation only.{' '}
-          <a href="mailto:founders@ozonelabs.io" className="text-oz-cyan hover:underline">
+          <a href="mailto:founders@ozbuilts.com" className="text-oz-cyan hover:underline">
             Contact us
           </a>
         </p>

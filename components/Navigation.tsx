@@ -116,7 +116,7 @@ export function Navigation() {
               Portal
             </Link>
             <a
-              href="mailto:founders@ozonelabs.io"
+              href="mailto:founders@ozbuilts.com"
               className="font-mono text-xs tracking-widest uppercase font-bold px-5 py-2.5 rounded-sm transition-all duration-150"
               style={{
                 backgroundColor: '#00E5FF',
@@ -205,7 +205,7 @@ export function Navigation() {
             }}
           >
             <a
-              href="mailto:founders@ozonelabs.io"
+              href="mailto:founders@ozbuilts.com"
               className="w-full text-center font-mono text-sm tracking-widest uppercase font-bold py-4 rounded-sm transition-colors duration-150"
               style={{ backgroundColor: '#00E5FF', color: '#050507' }}
             >

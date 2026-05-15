@@ -236,7 +236,7 @@ export default function HomePage() {
                 >
                   <span className="h-1.5 w-1.5 rounded-full bg-oz-green animate-status-pulse" />
                   <span className="font-mono text-xs text-oz-text-2 tracking-[0.15em] uppercase">
-                    Lahore, Pakistan — Est. 2024
+                    Islamabad, Pakistan — Est. 2024
                   </span>
                 </div>
 
@@ -278,7 +278,7 @@ export default function HomePage() {
                 {/* CTAs */}
                 <div className="flex flex-wrap items-center gap-4">
                   <a
-                    href="mailto:founders@ozonelabs.io"
+                    href="mailto:founders@ozbuilts.com"
                     className={cn(
                       'inline-flex items-center gap-2 font-mono text-sm tracking-widest uppercase font-bold',
                       'bg-oz-cyan text-oz-black px-8 py-4 rounded-sm',
@@ -615,7 +615,7 @@ export default function HomePage() {
               <span className="text-oz-text">LABS</span>
             </Link>
             <p className="font-mono text-xs text-oz-text-3 tracking-wider">
-              © {new Date().getFullYear()} Ozone Labs — Lahore, Pakistan
+              © {new Date().getFullYear()} Ozone Labs — Islamabad, Pakistan
             </p>
             <div className="flex items-center gap-6">
               <Link href="/transparency" className="font-mono text-xs text-oz-text-3 hover:text-oz-cyan transition-colors tracking-wider">
@@ -624,7 +624,7 @@ export default function HomePage() {
               <Link href="/auth/login" className="font-mono text-xs text-oz-text-3 hover:text-oz-cyan transition-colors tracking-wider">
                 Portal
               </Link>
-              <a href="mailto:founders@ozonelabs.io" className="font-mono text-xs text-oz-text-3 hover:text-oz-cyan transition-colors tracking-wider">
+              <a href="mailto:founders@ozbuilts.com" className="font-mono text-xs text-oz-text-3 hover:text-oz-cyan transition-colors tracking-wider">
                 Contact
               </a>
             </div>

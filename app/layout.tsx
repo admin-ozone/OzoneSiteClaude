@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Syne, Space_Mono } from 'next/font/google';
 import { GeistSans } from 'geist/font/sans';
-import './globals.css';
+import './globals.css'; 
 
 // ─── Typography ───────────────────────────────────────────────────────────────
 
@@ -22,7 +22,7 @@ const spaceMono = Space_Mono({
 // ─── Metadata ─────────────────────────────────────────────────────────────────
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.APP_URL ?? 'https://ozonelabs.io'),
+  metadataBase: new URL(process.env.APP_URL ?? 'https://ozbuilts.com'),
 
   title: {
     template: '%s — Ozone Labs',
@@ -34,7 +34,7 @@ export const metadata: Metadata = {
     'Trilingual (English, Roman Urdu, Urdu). Zero-cost LLM architecture.',
 
   keywords: [
-    'AI Assistant', 'WhatsApp Bot', 'Lahore', 'Pakistan',
+    'AI Assistant', 'WhatsApp Bot', 'Islamabad', 'Pakistan',
     'Next.js Agency', 'Bot Infrastructure', 'RAG', 'Gemini API',
   ],
 

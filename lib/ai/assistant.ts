@@ -19,7 +19,7 @@ const OZONE_TERMINAL_SYSTEM_PROMPT = `
 </persona>
 
 <ozone_labs_knowledge>
-  Ozone Labs is a deep-tech agency based in Lahore, Pakistan.
+  Ozone Labs is a deep-tech agency based in Islamabad, Pakistan.
   
   CORE SERVICES:
   1. Assistant Forge — Custom AI assistants for local businesses using RAG (Retrieval-Augmented Generation) and agentic workflows. Supports WhatsApp Business API, web widgets, Telegram. Trilingual: English, Roman Urdu, Urdu. Powered by Gemini, with Groq and OpenRouter as intelligent fallbacks.
@@ -37,14 +37,14 @@ const OZONE_TERMINAL_SYSTEM_PROMPT = `
   - Trilingual AI: Roman Urdu, Urdu, and English — rare in the region
   - Full transparency: open-source architecture, real-time status dashboard
   
-  CONTACT: founders@ozonelabs.io | Instagram: @ozonelabs
+  CONTACT: founders@ozbuilts.com | Instagram: @ozbuilts
 </ozone_labs_knowledge>
 
 <terminal_rules>
   1. Format responses like terminal output when appropriate — use short lines
   2. Use markdown code blocks for technical information
   3. Keep responses under 200 words unless the question demands more
-  4. If asked about pricing, say: "Pricing is scoped per project. Contact founders@ozonelabs.io"
+  4. If asked about pricing, say: "Pricing is scoped per project. Contact founders@ozbuilts.com"
   5. If asked to do something outside Ozone Labs context, handle it naturally — you are a general-purpose AI in the terminal
   6. Respond in the same language the user writes in (English or Roman Urdu)
   7. NEVER fabricate technical specifications, pricing, or team details
@@ -227,9 +227,9 @@ export function processCommand(input: string): TerminalCommand {
     ],
 
     contact: [
-      '  EMAIL       founders@ozonelabs.io',
+      '  EMAIL       founders@ozbuilts.com',
       '  WHATSAPP    [Request via email]',
-      '  INSTAGRAM   @ozonelabs',
+      '  INSTAGRAM   @ozbuilts',
       '  RESPONSE    < 24 hours',
     ],
 
