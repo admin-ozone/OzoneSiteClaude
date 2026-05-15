@@ -82,7 +82,7 @@ const PROCESS = [
 
 const STACK = [
   'Next.js 15', 'React 19', 'TypeScript', 'Tailwind 4',
-  'Gemini 2.0', 'Groq Llama', 'OpenRouter',
+  'Gemini 3.1', 'Groq Llama', 'OpenRouter',
   'Prisma ORM', 'Supabase', 'Vercel',
   'WhatsApp API', 'Puppeteer',
   'Three.js', 'WebGL', 'React Native',
@@ -571,14 +571,14 @@ export default function HomePage() {
 
             {/* Email CTA */}
             <a
-              href="mailto:founders@ozonelabs.io"
+              href="mailto:founders@ozbuilts.com"
               className="group inline-flex items-center gap-4"
             >
               <span
                 className="font-display font-bold text-oz-text group-hover:text-oz-cyan transition-colors duration-300"
                 style={{ fontSize: 'clamp(1.5rem, 4vw, 2.5rem)' }}
               >
-                founders@ozonelabs.io
+                founders@ozbuilts.com
               </span>
               <svg
                 width="32"
@@ -595,12 +595,12 @@ export default function HomePage() {
             <div className="flex items-center justify-center gap-6 mt-16">
               <span className="font-mono text-xs text-oz-text-3 tracking-widest uppercase">Or find us at</span>
               <a
-                href="https://instagram.com/ozonelabs"
+                href="https://instagram.com/ozbuilts"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="font-mono text-sm text-oz-text-2 hover:text-oz-cyan transition-colors tracking-wider"
               >
-                @ozonelabs
+                @ozbuilts
               </a>
             </div>
           </div>

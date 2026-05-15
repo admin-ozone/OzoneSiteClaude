@@ -832,7 +832,7 @@ const SERVICES = [
         tagline: 'AI that speaks your customer\'s language',
         desc: 'Custom AI assistants built on RAG pipelines and agentic workflows. Deployed on WhatsApp Business, web widgets, and Telegram. Fully trilingual — English, Roman Urdu, Urdu — because your market deserves it.',
         tags: [
-            'Gemini 2.0',
+            'Gemini 3.1',
             'RAG',
             'WhatsApp API',
             'Agentic',
