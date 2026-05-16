@@ -257,3 +257,17 @@ code, pre, kbd, .mono {
 .animate-ticker {
   animation: ticker 25s linear infinite;
 }
+
+/* ── Chat panel spring open ─────────────────────────────────────────────────── */
+@keyframes chat-open {
+  from { opacity: 0; transform: scale(0.92) translateY(8px); }
+  to   { opacity: 1; transform: scale(1)    translateY(0); }
+}
+
+.animate-chat-open {
+  animation: chat-open 280ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-chat-open { animation: none; }
+}
