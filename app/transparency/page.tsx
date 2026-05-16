@@ -109,7 +109,7 @@ export default function TransparencyPage() {
           </div>
 
           {/* Overall status banner */}
-          <GlowCard className="p-6 mb-8 flex items-center justify-between gap-4" glow={data?.overall === 'OPERATIONAL'}>
+          <GlowCard className="p-6 mb-8 flex items-center justify-between gap-4" elevated={data?.overall === 'OPERATIONAL'}>
             <div>
               <p className="font-mono text-xs text-oz-text-3 tracking-widest uppercase mb-2">Overall Status</p>
               {loading ? (
@@ -179,7 +179,7 @@ export default function TransparencyPage() {
           <GlowCard className="p-6">
             <p className="font-mono text-xs text-oz-text-3 tracking-widest uppercase mb-3">Architecture</p>
             <p className="text-oz-text-2 text-sm leading-relaxed mb-4">
-              Our zero-cost LLM architecture chains Gemini → Groq → OpenRouter with automatic failover.
+              Our LLM architecture chains Gemini → Groq → OpenRouter with automatic failover.
               If the primary provider degrades, traffic routes to the next provider within milliseconds —
               no downtime, no manual intervention.
             </p>

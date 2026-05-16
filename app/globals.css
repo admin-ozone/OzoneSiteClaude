@@ -2,40 +2,36 @@
 
 /* ─────────────────────────────────────────────────────────────────────────────
    TAILWIND v4 THEME REGISTRATION
-   In Tailwind v4, custom tokens must be declared here with @theme.
-   tailwind.config.ts is ignored by the v4 engine.
-   These tokens generate all the `oz-*` utility classes used across the project.
 ───────────────────────────────────────────────────────────────────────────── */
 
 @theme {
 
-  /* ── Core palette ──────────────────────────────────────────────────────── */
-  --color-oz-black:     #050507;
-  --color-oz-black-2:   #0a0a0e;
-  --color-oz-black-3:   #0f0f14;
-  --color-oz-surface:   #141419;
-  --color-oz-surface-2: #1a1a21;
-  --color-oz-border:    #1e1e28;
-  --color-oz-border-2:  #2a2a38;
+  /* ── Backgrounds ───────────────────────────────────────────────────────── */
+  --color-oz-white:      #FFFFFF;
+  --color-oz-off-white:  #F5F4F1;
+  --color-oz-surface:    #EFEDE9;
+  --color-oz-surface-2:  #E8E4DF;
+  --color-oz-border:     #DEDAD4;
+  --color-oz-border-2:   #C8C4BE;
 
   /* ── Text hierarchy ────────────────────────────────────────────────────── */
-  --color-oz-text:      #f0f0f4;
-  --color-oz-text-2:    #9898b0;
-  --color-oz-text-3:    #52526a;
-  --color-oz-muted:     #2e2e40;
+  --color-oz-text:       #111110;
+  --color-oz-text-2:     #3D3C3A;
+  --color-oz-text-3:     #7A7873;
+  --color-oz-muted:      #B0ADA8;
 
-  /* ── Accent — electric cyan ────────────────────────────────────────────── */
-  --color-oz-cyan:      #00E5FF;
-  --color-oz-cyan-dim:  rgba(0, 229, 255, 0.1);
-  --color-oz-cyan-glow: rgba(0, 229, 255, 0.2);
+  /* ── Accent — brand red (from logo) ────────────────────────────────────── */
+  --color-oz-red:        #FF3428;
+  --color-oz-red-dim:    rgba(255, 52, 40, 0.08);
+  --color-oz-red-border: rgba(255, 52, 40, 0.2);
 
-  /* ── Status colours ────────────────────────────────────────────────────── */
-  --color-oz-green:     #00FF88;
-  --color-oz-green-dim: rgba(0, 255, 136, 0.1);
-  --color-oz-amber:     #FFB800;
-  --color-oz-amber-dim: rgba(255, 184, 0, 0.1);
-  --color-oz-red:       #FF3D57;
-  --color-oz-red-dim:   rgba(255, 61, 87, 0.1);
+  /* ── Status ────────────────────────────────────────────────────────────── */
+  --color-oz-green:      #1A7A4A;
+  --color-oz-green-dim:  rgba(26, 122, 74, 0.08);
+  --color-oz-amber:      #B45309;
+  --color-oz-amber-dim:  rgba(180, 83, 9, 0.08);
+  --color-oz-danger:     #CC1A10;
+  --color-oz-danger-dim: rgba(204, 26, 16, 0.08);
 
   /* ── Typography ────────────────────────────────────────────────────────── */
   --font-display: var(--font-syne), sans-serif;
@@ -52,18 +48,15 @@
   --font-size-2xs: 0.625rem;
 
   /* ── Shadows ───────────────────────────────────────────────────────────── */
-  --shadow-oz-sm: 0 0 0 1px rgba(0,229,255,0.12);
-  --shadow-oz:    0 0 0 1px rgba(0,229,255,0.18), 0 0 20px rgba(0,229,255,0.08);
-  --shadow-oz-lg: 0 0 0 1px rgba(0,229,255,0.25), 0 0 40px rgba(0,229,255,0.15), 0 0 80px rgba(0,229,255,0.05);
+  --shadow-oz-sm: 0 1px 3px rgba(0,0,0,0.06);
+  --shadow-oz:    0 2px 12px rgba(0,0,0,0.08);
+  --shadow-oz-lg: 0 4px 24px rgba(0,0,0,0.10);
 
   /* ── Keyframes ─────────────────────────────────────────────────────────── */
-  --animate-cursor:        cursor 1.1s ease-in-out infinite;
   --animate-text-reveal:   text-reveal 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  --animate-glow-pulse:    glow-pulse 3s ease-in-out infinite;
   --animate-scanline:      scanline 8s linear infinite;
   --animate-float:         float 6s ease-in-out infinite;
   --animate-slide-in-left: slide-in-left 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
-  --animate-status-pulse:  status-pulse 2s ease-in-out infinite;
   --animate-grid-in:       grid-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
@@ -71,39 +64,19 @@
    KEYFRAMES
 ───────────────────────────────────────────────────────────────────────────── */
 
-@keyframes cursor {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0; }
-}
-
 @keyframes text-reveal {
   from { clip-path: inset(0 100% 0 0); }
   to   { clip-path: inset(0 0% 0 0);   }
 }
 
-@keyframes glow-pulse {
-  0%, 100% { box-shadow: 0 0 0px rgba(0,229,255,0); }
-  50%       { box-shadow: 0 0 20px rgba(0,229,255,0.3), 0 0 40px rgba(0,229,255,0.15); }
-}
-
-@keyframes scanline {
-  0%   { transform: translateY(-100%); }
-  100% { transform: translateY(100vh); }
-}
-
 @keyframes float {
   0%, 100% { transform: translateY(0px);  }
-  50%       { transform: translateY(-8px); }
+  50%       { transform: translateY(-6px); }
 }
 
 @keyframes slide-in-left {
   from { opacity: 0; transform: translateX(-12px); }
   to   { opacity: 1; transform: translateX(0);     }
-}
-
-@keyframes status-pulse {
-  0%, 100% { opacity: 1;   transform: scale(1);    }
-  50%       { opacity: 0.4; transform: scale(0.85); }
 }
 
 @keyframes grid-in {
@@ -117,14 +90,12 @@
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
-   CSS CUSTOM PROPERTIES — direct usage in non-Tailwind contexts
+   CSS CUSTOM PROPERTIES
 ───────────────────────────────────────────────────────────────────────────── */
 
 :root {
-  --glow-cyan:     0 0 0 1px rgba(0, 229, 255, 0.2), 0 0 20px rgba(0, 229, 255, 0.12), 0 0 40px rgba(0, 229, 255, 0.06);
-  --glow-cyan-lg:  0 0 0 1px rgba(0, 229, 255, 0.3), 0 0 40px rgba(0, 229, 255, 0.2), 0 0 80px rgba(0, 229, 255, 0.08);
-  --grid-color:    rgba(30, 30, 40, 0.8);
-  --grid-size:     40px;
+  --grid-color:    rgba(0, 0, 0, 0.055);
+  --grid-size:     48px;
   --transition:    all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   --transition-lg: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -143,8 +114,8 @@ html {
 }
 
 body {
-  background-color: #050507;
-  color: #f0f0f4;
+  background-color: #FFFFFF;
+  color: #111110;
   overflow-x: hidden;
   font-family: var(--font-geist-sans), sans-serif;
 }
@@ -158,7 +129,7 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 700;
   letter-spacing: -0.02em;
   line-height: 1.1;
-  color: #f0f0f4;
+  color: #111110;
 }
 
 code, pre, kbd, .mono {
@@ -171,15 +142,15 @@ code, pre, kbd, .mono {
 ───────────────────────────────────────────────────────────────────────────── */
 
 ::-webkit-scrollbar       { width: 4px; height: 4px; }
-::-webkit-scrollbar-track { background: #0a0a0e; }
-::-webkit-scrollbar-thumb { background: #2a2a38; border-radius: 2px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(0, 229, 255, 0.3); }
+::-webkit-scrollbar-track { background: #F5F4F1; }
+::-webkit-scrollbar-thumb { background: #C8C4BE; border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: #FF3428; }
 
 /* ─────────────────────────────────────────────────────────────────────────────
    UTILITY CLASSES
 ───────────────────────────────────────────────────────────────────────────── */
 
-/* Grid background — used in hero and section backgrounds */
+/* Grid background — architectural texture on white */
 .bg-grid {
   background-image:
     linear-gradient(to right, var(--grid-color) 1px, transparent 1px),
@@ -194,60 +165,28 @@ code, pre, kbd, .mono {
   background: radial-gradient(
     ellipse 80% 60% at 50% 0%,
     transparent 0%,
-    #050507 100%
+    #FFFFFF 100%
   );
   pointer-events: none;
 }
 
-/* CRT scanlines */
-.crt-scanlines { position: relative; overflow: hidden; }
-.crt-scanlines::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: repeating-linear-gradient(
-    0deg,
-    transparent,
-    transparent 2px,
-    rgba(0, 0, 0, 0.08) 2px,
-    rgba(0, 0, 0, 0.08) 4px
-  );
-  pointer-events: none;
-  z-index: 10;
-}
-
-/* Glow utilities */
-.glow          { box-shadow: var(--glow-cyan); }
-.glow-text     { text-shadow: 0 0 20px rgba(0, 229, 255, 0.6), 0 0 40px rgba(0, 229, 255, 0.3); }
-.glow-border   { border: 1px solid rgba(0, 229, 255, 0.3); box-shadow: var(--glow-cyan); }
-
-/* Terminal cursor */
-.cursor-blink::after {
-  content: '█';
-  display: inline-block;
-  color: #00E5FF;
-  animation: cursor 1.1s ease-in-out infinite;
-  margin-left: 1px;
-  font-size: 0.9em;
-}
-
-/* Gradient text */
-.text-gradient-cyan {
-  background: linear-gradient(135deg, #00E5FF 0%, rgba(0, 229, 255, 0.6) 100%);
+/* Gradient text — red */
+.text-gradient-red {
+  background: linear-gradient(135deg, #FF3428 0%, rgba(255, 52, 40, 0.6) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
-.text-gradient-white {
-  background: linear-gradient(180deg, #f0f0f4 0%, rgba(240, 240, 244, 0.6) 100%);
+.text-gradient-dark {
+  background: linear-gradient(180deg, #111110 0%, rgba(17, 17, 16, 0.6) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 /* Focus */
-:focus-visible { outline: 2px solid #00E5FF; outline-offset: 2px; }
+:focus-visible { outline: 2px solid #FF3428; outline-offset: 2px; }
 
 /* No scrollbar */
 .no-scrollbar::-webkit-scrollbar { display: none; }

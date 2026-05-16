@@ -3,14 +3,14 @@
 import { cn } from '@/lib/utils';
 
 interface GlowCardProps extends React.HTMLAttributes<HTMLElement> {
-  glow?: boolean;
+  elevated?: boolean;
   noBorder?: boolean;
   as?: 'div' | 'article' | 'section' | 'li';
 }
 
 export function GlowCard({
   className,
-  glow = false,
+  elevated = false,
   noBorder = false,
   as: Tag = 'div',
   children,
@@ -19,15 +19,15 @@ export function GlowCard({
   return (
     <div
       className={cn(
-        'relative bg-oz-surface rounded-sm transition-all duration-300',
+        'relative bg-oz-white rounded-sm transition-all duration-300',
         !noBorder && 'border border-oz-border',
-        'hover:border-oz-cyan/20 hover:shadow-[0_0_0_1px_rgba(0,229,255,0.1),0_0_30px_rgba(0,229,255,0.06)]',
-        glow && 'border-oz-cyan/20 shadow-oz',
+        'hover:border-oz-border-2 hover:shadow-[0_2px_16px_rgba(0,0,0,0.06)]',
+        elevated && 'border-oz-border-2 shadow-[0_2px_12px_rgba(0,0,0,0.05)]',
         className
       )}
       {...(props as React.HTMLAttributes<HTMLDivElement>)}
     >
-      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-oz-border-2 to-transparent" />
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-oz-border to-transparent" />
       {children}
     </div>
   );

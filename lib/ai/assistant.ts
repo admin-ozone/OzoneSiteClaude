@@ -1,9 +1,9 @@
 /**
- * OZONE TERMINAL ASSISTANT
+ * OZONE ASSISTANT
  * ─────────────────────────────────────────────────────────────────────────────
- * Powers the interactive terminal on the homepage.
+ * Powers the Uzo AI chat bubble.
  * Streams responses via Server-Sent Events (SSE).
- * Routes through Gemini with Groq fallback.
+ * Provider chain: Gemini → Groq → OpenRouter
  * ─────────────────────────────────────────────────────────────────────────────
  */
 
@@ -11,65 +11,50 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 
 // ─── System Prompt ─────────────────────────────────────────────────────────
 
-const OZONE_TERMINAL_SYSTEM_PROMPT = `
+const SYSTEM_PROMPT = `
 <persona>
-  You are OzoneOS v1.0 — the AI assistant powering Ozone Labs' public terminal.
-  You are a highly technical, precise, and confident AI built by Ozone Labs.
-  Tone: technical but approachable. Concise. Never verbose. Think CLI output, not essays.
+  You are Uzo — the AI assistant for Ozone Labs.
+  You are helpful, technically precise, and confident. Keep responses concise and direct.
+  Never use terminal formatting, ASCII headers, or system boot messages.
+  Just answer naturally, like a knowledgeable team member would.
 </persona>
 
 <ozone_labs_knowledge>
   Ozone Labs is a deep-tech agency based in Islamabad, Pakistan.
   
   CORE SERVICES:
-  1. Assistant Forge — Custom AI assistants for local businesses using RAG (Retrieval-Augmented Generation) and agentic workflows. Supports WhatsApp Business API, web widgets, Telegram. Trilingual: English, Roman Urdu, Urdu. Powered by Gemini, with Groq and OpenRouter as intelligent fallbacks.
-  
-  2. Bot Infrastructure — WhatsApp automation (whatsapp-web.js), Puppeteer-based browser bots, proxy rotation, stealth fingerprinting. Custom webhook architecture.
-  
-  3. Web & App Lab — Full-stack Next.js applications, React Native mobile apps, Progressive Web Apps. Database: PostgreSQL via Supabase. Auth: NextAuth.js.
-  
+  1. Assistant Forge — Custom AI assistants using RAG and agentic workflows. Deployed on WhatsApp Business API, web widgets, Telegram. Supports any language. Powered by Gemini with intelligent fallbacks.
+  2. Bot Infrastructure — WhatsApp automation, Puppeteer browser bots, proxy rotation, stealth fingerprinting. Custom webhook architecture.
+  3. Web & App Lab — Full-stack Next.js applications, React Native mobile apps, Progressive Web Apps. PostgreSQL, Supabase, NextAuth.
   4. Game Lab — WebGL games, Three.js interactive experiences, browser-based 2D/3D applications.
   
-  DIFFERENTIATORS:
-  - Zero dependency on expensive proprietary SaaS — we build the infrastructure
-  - Free-tier LLM architecture: Gemini + Groq + OpenRouter = $0 LLM cost at scale
-  - Multi-provider fallback chains: 9 models, zero downtime if any provider fails
-  - Trilingual AI: Roman Urdu, Urdu, and English — rare in the region
-  - Full transparency: open-source architecture, real-time status dashboard
-  
-  CONTACT: founders@ozbuilts.com | Instagram: @ozbuilts
+  CONTACT: founders@ozonelabs.io | Instagram: @ozonelabs
 </ozone_labs_knowledge>
 
-<terminal_rules>
-  1. Format responses like terminal output when appropriate — use short lines
-  2. Use markdown code blocks for technical information
-  3. Keep responses under 200 words unless the question demands more
-  4. If asked about pricing, say: "Pricing is scoped per project. Contact founders@ozbuilts.com"
-  5. If asked to do something outside Ozone Labs context, handle it naturally — you are a general-purpose AI in the terminal
-  6. Respond in the same language the user writes in (English or Roman Urdu)
-  7. NEVER fabricate technical specifications, pricing, or team details
-</terminal_rules>
+<rules>
+  1. Be concise — under 150 words unless the question genuinely needs more
+  2. Never output terminal headers, system boot text, or ASCII art
+  3. If asked about pricing: "Pricing is scoped per project. Reach us at founders@ozonelabs.io"
+  4. Respond in the same language the user writes in
+  5. Never fabricate specifications, pricing, or team details
+</rules>
 `.trim();
 
-// ─── Shared History Type ───────────────────────────────────────────────────
+// ─── Types ─────────────────────────────────────────────────────────────────
 
 type ConversationHistory = Array<{ role: 'user' | 'model'; content: string }>;
 
-// ─── Gemini Streaming ─────────────────────────────────────────────────────
+// ─── Gemini ───────────────────────────────────────────────────────────────
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
-/**
- * Streams a response from Gemini.
- * Throws on API / network failure so the caller can fall back to Groq.
- */
 async function* streamGemini(
   userMessage: string,
   history: ConversationHistory
 ): AsyncGenerator<string> {
   const model = genAI.getGenerativeModel({
-    model:             process.env.TERMINAL_MODEL ?? 'gemini-3.1-flash-lite',
-    systemInstruction: OZONE_TERMINAL_SYSTEM_PROMPT,
+    model:             process.env.TERMINAL_MODEL ?? 'gemini-2.0-flash-lite',
+    systemInstruction: SYSTEM_PROMPT,
     generationConfig: {
       maxOutputTokens: 512,
       temperature:     0.6,
@@ -91,16 +76,14 @@ async function* streamGemini(
   }
 }
 
-// ─── Groq Fallback Streaming ──────────────────────────────────────────────
-// Uses Groq's OpenAI-compatible chat completions endpoint with SSE streaming.
-// Model default matches the boot sequence: llama-3.1-8b-instant
+// ─── Groq ─────────────────────────────────────────────────────────────────
 
 async function* streamGroq(
   userMessage: string,
   history: ConversationHistory
 ): AsyncGenerator<string> {
   const messages = [
-    { role: 'system',    content: OZONE_TERMINAL_SYSTEM_PROMPT },
+    { role: 'system', content: SYSTEM_PROMPT },
     ...history.map((m) => ({
       role:    m.role === 'model' ? 'assistant' : 'user',
       content: m.content,
@@ -108,25 +91,70 @@ async function* streamGroq(
     { role: 'user', content: userMessage },
   ];
 
-  const response = await fetch('https://api.groq.com/openai/v1/terminal/completions', {
+  const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method:  'POST',
     headers: {
       'Content-Type':  'application/json',
       'Authorization': `Bearer ${process.env.GROQ_API_KEY}`,
     },
     body: JSON.stringify({
-      model:      process.env.GROQ_MODEL ?? 'llama-3.1-8b-instant',
+      model:       process.env.GROQ_MODEL ?? 'llama-3.1-8b-instant',
       messages,
-      max_tokens: 512,
+      max_tokens:  512,
       temperature: 0.6,
-      stream:     true,
+      stream:      true,
     }),
   });
 
   if (!response.ok) {
-    throw new Error(`Groq API error: ${response.status} ${response.statusText}`);
+    throw new Error(`Groq error: ${response.status} ${response.statusText}`);
   }
 
+  yield* parseOpenAIStream(response);
+}
+
+// ─── OpenRouter ───────────────────────────────────────────────────────────
+
+async function* streamOpenRouter(
+  userMessage: string,
+  history: ConversationHistory
+): AsyncGenerator<string> {
+  const messages = [
+    { role: 'system', content: SYSTEM_PROMPT },
+    ...history.map((m) => ({
+      role:    m.role === 'model' ? 'assistant' : 'user',
+      content: m.content,
+    })),
+    { role: 'user', content: userMessage },
+  ];
+
+  const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    method:  'POST',
+    headers: {
+      'Content-Type':  'application/json',
+      'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+      'HTTP-Referer':  process.env.APP_URL ?? 'https://ozonelabs.io',
+      'X-Title':       'Ozone Labs',
+    },
+    body: JSON.stringify({
+      model:       process.env.OPENROUTER_MODEL ?? 'meta-llama/llama-3.1-8b-instruct:free',
+      messages,
+      max_tokens:  512,
+      temperature: 0.6,
+      stream:      true,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`OpenRouter error: ${response.status} ${response.statusText}`);
+  }
+
+  yield* parseOpenAIStream(response);
+}
+
+// ─── Shared SSE parser (OpenAI-compatible) ────────────────────────────────
+
+async function* parseOpenAIStream(response: Response): AsyncGenerator<string> {
   const reader  = response.body!.getReader();
   const decoder = new TextDecoder();
   let   buffer  = '';
@@ -142,26 +170,23 @@ async function* streamGroq(
     for (const line of lines) {
       const trimmed = line.trim();
       if (!trimmed.startsWith('data:')) continue;
-
       const raw = trimmed.slice(5).trim();
       if (raw === '[DONE]') return;
-
       try {
         const parsed  = JSON.parse(raw);
         const content = parsed.choices?.[0]?.delta?.content;
         if (content) yield content;
       } catch {
-        // Malformed SSE chunk — skip
+        // Malformed chunk — skip
       }
     }
   }
 }
 
-// ─── Public API: streamTerminalResponse ──────────────────────────────────
+// ─── Public API ───────────────────────────────────────────────────────────
 /**
- * Streams a terminal response.
- * Tries Gemini first; on any failure, transparently falls back to Groq.
- * Returns an async generator of text chunks.
+ * Tries Gemini → Groq → OpenRouter in order.
+ * Each failure is logged server-side only.
  */
 export async function* streamTerminalResponse(
   userMessage: string,
@@ -169,27 +194,30 @@ export async function* streamTerminalResponse(
 ): AsyncGenerator<string> {
   try {
     yield* streamGemini(userMessage, history);
-  } catch (geminiErr) {
-    // Log server-side for observability; client never sees this
-    console.error('[assistant] Gemini failed — falling back to Groq:', geminiErr);
+    return;
+  } catch (err) {
+    console.error('[assistant] Gemini failed:', err);
+  }
 
-    try {
-      yield* streamGroq(userMessage, history);
-    } catch (groqErr) {
-      console.error('[assistant] Groq fallback also failed:', groqErr);
-      // Surface a clean error to the SSE handler in route.ts
-      throw new Error('All LLM providers unavailable. Please try again shortly.');
-    }
+  try {
+    yield* streamGroq(userMessage, history);
+    return;
+  } catch (err) {
+    console.error('[assistant] Groq failed:', err);
+  }
+
+  try {
+    yield* streamOpenRouter(userMessage, history);
+    return;
+  } catch (err) {
+    console.error('[assistant] OpenRouter failed:', err);
+    throw new Error('All LLM providers unavailable. Please try again shortly.');
   }
 }
 
-// ─── Terminal Command Processor ───────────────────────────────────────────
-// Special commands that bypass the LLM entirely for instant responses
+// ─── Command Processor ────────────────────────────────────────────────────
 
-export type TerminalCommand = {
-  output: string[];
-  isCommand: true;
-} | null;
+export type TerminalCommand = { output: string[]; isCommand: true } | null;
 
 export function processCommand(input: string): TerminalCommand {
   const cmd = input.trim().toLowerCase();
@@ -207,7 +235,6 @@ export function processCommand(input: string): TerminalCommand {
       '  ',
       '  Or just type any question — the AI will answer.',
     ],
-
     services: [
       '  ┌─ SERVICES ──────────────────────────────┐',
       '  │  [1] Assistant Forge    AI + RAG + Agents │',
@@ -216,23 +243,20 @@ export function processCommand(input: string): TerminalCommand {
       '  │  [4] Game Lab           WebGL + Three.js  │',
       '  └─────────────────────────────────────────-┘',
     ],
-
     stack: [
       '  FRONTEND   Next.js 15 · React 19 · Tailwind 4',
       '  BACKEND    Node.js · Prisma ORM · PostgreSQL',
-      '  AI/ML      Gemini · Groq · OpenRouter (9 models)',
+      '  AI/ML      Gemini · Groq · OpenRouter',
       '  AUTH       NextAuth.js v5 · Supabase',
       '  DEPLOY     Vercel · DigitalOcean · Docker',
       '  BOTS       whatsapp-web.js · Puppeteer · p-queue',
     ],
-
     contact: [
-      '  EMAIL       founders@ozbuilts.com',
+      '  EMAIL       founders@ozonelabs.io',
       '  WHATSAPP    [Request via email]',
-      '  INSTAGRAM   @ozbuilts',
+      '  INSTAGRAM   @ozonelabs',
       '  RESPONSE    < 24 hours',
     ],
-
     status: [
       '  Checking system status...',
       '  → Redirecting to /transparency',

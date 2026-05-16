@@ -1,7 +1,6 @@
 /**
  * CHAT STORE — Zustand
  * Powers the Uzo / OzoneAI floating chat bubble.
- * Structured so a real streaming API can be wired in with minimal changes.
  */
 
 import { create } from 'zustand';
@@ -25,26 +24,26 @@ export interface ConversationTurn {
 }
 
 interface ChatState {
-  messages:   ChatMessage[];
-  history:    ConversationTurn[];
-  isStreaming: boolean;
-  isOpen:     boolean;
-  hasOpened:  boolean;
+  messages:    ChatMessage[];
+  history:     ConversationTurn[];
+  isStreaming:  boolean;
+  isOpen:      boolean;
+  hasOpened:   boolean;
 
-  addMessage:       (role: MessageRole, content: string) => string;
-  appendToMessage:  (id: string, chunk: string) => void;
-  finalizeMessage:  (id: string) => void;
-  setStreaming:     (streaming: boolean) => void;
-  addToHistory:     (role: 'user' | 'model', content: string) => void;
-  setOpen:          (open: boolean) => void;
+  addMessage:      (role: MessageRole, content: string) => string;
+  appendToMessage: (id: string, chunk: string) => void;
+  finalizeMessage: (id: string) => void;
+  setStreaming:    (streaming: boolean) => void;
+  addToHistory:    (role: 'user' | 'model', content: string) => void;
+  setOpen:         (open: boolean) => void;
 }
 
-// ─── Greeting message ─────────────────────────────────────────────────────────
+// ─── Greeting ─────────────────────────────────────────────────────────────────
 
 const GREETING: ChatMessage = {
   id:        'greeting',
   role:      'ai',
-  content:   "Hi — I'm Uzo. Ask me about our services, tech stack, or how we can help your business.",
+  content:   "Hi, I'm Uzo. Ask me anything about Ozone Labs — our services, stack, or how we can help.",
   timestamp: new Date(),
 };
 

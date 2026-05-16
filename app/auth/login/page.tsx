@@ -17,6 +17,7 @@ import { signIn } from 'next-auth/react';
 import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
 import { cn } from '@/lib/utils';
+import Link from 'next/link';
 
 function LoginForm() {
   const searchParams = useSearchParams();
@@ -54,6 +55,13 @@ function LoginForm() {
           </p>
         </div>
       )}
+
+      {/*<Link
+                      href="/"
+                      className="font-mono text-xs text-oz-text-3 hover:text-oz-cyan transition-colors tracking-widest uppercase w-full text-center"
+                    >
+                      ← Back to homepage
+      </Link>*/}
 
       <div className="flex flex-col gap-3">
         <Button
@@ -130,14 +138,15 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen bg-oz-black flex items-center justify-center px-6">
+    <div className="min-h-screen bg-oz-white flex items-center justify-center px-6">
       <div className="absolute inset-0 bg-grid opacity-50 pointer-events-none" />
       <div className="relative z-10 w-full max-w-sm">
-        <p className="font-mono text-sm tracking-widest uppercase text-center mb-10">
-          <span className="text-oz-cyan">OZ</span>
-          <span className="text-oz-text-3 mx-1">/</span>
-          <span className="text-oz-text">LABS</span>
-        </p>
+        {/* Wordmark */}
+                  <Link href="/" className="group font-mono text-sm font-bold tracking-[0.2em] uppercase w-full flex justify-center items-center gap-0">
+                    <span className="transition-colors duration-200" style={{ color: '#FF3428' }}>OZ</span>
+                    <span style={{ color: '#C8C4BE', margin: '0 6px' }}>/</span>
+                    <span className="transition-colors duration-200 group-hover:text-oz-red" style={{ color: '#111110' }}>LABS</span>
+                  </Link>
 
         <Suspense fallback={<div className="h-96 bg-oz-surface border border-oz-border rounded-sm animate-pulse" />}>
           <LoginForm />
@@ -145,7 +154,7 @@ export default function LoginPage() {
 
         <p className="font-mono text-2xs text-oz-text-3 text-center mt-6 tracking-wider">
           Access is by invitation only.{' '}
-          <a href="mailto:founders@ozbuilts.com" className="text-oz-cyan hover:underline">
+          <a href="mailto:founders@ozbuilts.com" className="text-oz-red hover:underline">
             Contact us
           </a>
         </p>

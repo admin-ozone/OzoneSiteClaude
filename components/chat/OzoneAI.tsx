@@ -5,7 +5,7 @@ import { MessageCircle, X, Send } from 'lucide-react';
 import { useChatStore } from '@/lib/stores/chat-store';
 import { cn } from '@/lib/utils';
 
-// ─── SSE Stream Handler (identical to terminal) ───────────────────────────────
+// ─── SSE Stream Handler ───────────────────────────────────────────────────────
 
 async function streamAssistant(
   message: string,
@@ -52,6 +52,62 @@ async function streamAssistant(
   onDone();
 }
 
+function ChatBlueprintBG() {
+  return (
+    <svg
+      viewBox="0 0 380 500"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className="absolute inset-0 w-full h-full pointer-events-none"
+      aria-hidden="true"
+    >
+      {/* ── Radial rings — like a signal/radar ── */}
+      <circle cx="190" cy="260" r="60"  stroke="#DEDAD4" strokeWidth="0.5" />
+      <circle cx="190" cy="260" r="110" stroke="#DEDAD4" strokeWidth="0.5" />
+      <circle cx="190" cy="260" r="160" stroke="#DEDAD4" strokeWidth="0.5" />
+      <circle cx="190" cy="260" r="215" stroke="#DEDAD4" strokeWidth="0.5" />
+
+      {/* ── Cross hairs ── */}
+      <line x1="190" y1="0"   x2="190" y2="500" stroke="#DEDAD4" strokeWidth="0.5" strokeDasharray="3 8" />
+      <line x1="0"   y1="260" x2="380" y2="260" stroke="#DEDAD4" strokeWidth="0.5" strokeDasharray="3 8" />
+
+      {/* ── Diagonal sweep line ── */}
+      <line x1="190" y1="260" x2="380" y2="80"  stroke="#DEDAD4" strokeWidth="0.75" />
+
+      {/* ── Circuit traces — top-left cluster ── */}
+      <polyline points="20,40 20,90 60,90 60,120 110,120" stroke="#DEDAD4" strokeWidth="0.75" fill="none" />
+      <circle cx="20"  cy="40"  r="2" fill="#DEDAD4" />
+      <circle cx="60"  cy="90"  r="1.5" fill="#DEDAD4" />
+      <circle cx="110" cy="120" r="2" fill="#DEDAD4" />
+
+      {/* ── Circuit traces — bottom-right cluster ── */}
+      <polyline points="360,460 360,400 310,400 310,370 260,370" stroke="#DEDAD4" strokeWidth="0.75" fill="none" />
+      <circle cx="360" cy="460" r="2"   fill="#DEDAD4" />
+      <circle cx="310" cy="400" r="1.5" fill="#DEDAD4" />
+      <circle cx="260" cy="370" r="2"   fill="#DEDAD4" />
+
+      {/* ── Tick marks on outer ring ── */}
+      {Array.from({ length: 12 }).map((_, i) => {
+        const angle = (i * 30 * Math.PI) / 180;
+        const x1 = 190 + 208 * Math.cos(angle);
+        const y1 = 260 + 208 * Math.sin(angle);
+        const x2 = 190 + 218 * Math.cos(angle);
+        const y2 = 260 + 218 * Math.sin(angle);
+        return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke="#DEDAD4" strokeWidth="0.75" />;
+      })}
+
+      {/* ── Red center dot ── */}
+      <circle cx="190" cy="260" r="3" fill="#FF3428" opacity="0.4" />
+      <circle cx="190" cy="260" r="1.5" fill="#FF3428" opacity="0.7" />
+
+      {/* ── Small label ── */}
+      <text x="196" y="256" fontFamily="'Space Mono', monospace" fontSize="6" fill="#C8C4BE" letterSpacing="0.08em">
+        UZOAI
+      </text>
+    </svg>
+  );
+}
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function OzoneAI() {
@@ -69,20 +125,18 @@ export function OzoneAI() {
     setOpen,
   } = useChatStore();
 
-  const [input, setInput]           = useState('');
+  const [input, setInput]             = useState('');
   const [showTooltip, setShowTooltip] = useState(false);
-  const bottomRef   = useRef<HTMLDivElement>(null);
-  const inputRef    = useRef<HTMLInputElement>(null);
+  const bottomRef    = useRef<HTMLDivElement>(null);
+  const inputRef     = useRef<HTMLInputElement>(null);
   const tooltipTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Show tooltip after 4s if panel was never opened
   useEffect(() => {
     if (hasOpened) return;
     tooltipTimer.current = setTimeout(() => setShowTooltip(true), 4000);
     return () => { if (tooltipTimer.current) clearTimeout(tooltipTimer.current); };
   }, [hasOpened]);
 
-  // Close on Escape
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && isOpen) setOpen(false);
@@ -91,12 +145,10 @@ export function OzoneAI() {
     return () => window.removeEventListener('keydown', onKey);
   }, [isOpen, setOpen]);
 
-  // Auto-scroll to latest message
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }, [messages]);
 
-  // Focus input when panel opens
   useEffect(() => {
     if (isOpen) setTimeout(() => inputRef.current?.focus(), 300);
   }, [isOpen]);
@@ -106,7 +158,6 @@ export function OzoneAI() {
     setOpen(true);
   };
 
-  // ── Submit handler ─────────────────────────────────────────────────────────
   const handleSubmit = useCallback(async () => {
     const text = input.trim();
     if (!text || isStreaming) return;
@@ -143,12 +194,13 @@ export function OzoneAI() {
 
   return (
     <>
-      {/* ── FAB (closed state) ───────────────────────────────────────────── */}
+      {/* ── FAB ─────────────────────────────────────────────────────────── */}
       {!isOpen && (
         <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-2">
+
           {/* Tooltip */}
           {showTooltip && !hasOpened && (
-            <div className="animate-fade-in font-mono text-xs text-oz-text-3 bg-oz-surface border border-oz-border px-3 py-2 rounded-sm whitespace-nowrap shadow-oz-sm">
+            <div className="font-mono text-xs text-oz-text-3 bg-oz-white border border-oz-border px-3 py-2 rounded-sm whitespace-nowrap shadow-[0_2px_8px_rgba(0,0,0,0.08)]">
               Ask Uzo anything →
             </div>
           )}
@@ -157,44 +209,42 @@ export function OzoneAI() {
             aria-label="Open AI chat"
             onClick={handleOpen}
             className={cn(
-              'relative h-14 w-14 rounded-full bg-oz-surface border border-oz-border-2',
+              'relative h-14 w-14 rounded-full bg-oz-white border border-oz-border-2',
               'flex items-center justify-center',
-              'hover:border-oz-cyan/30 hover:shadow-[0_0_24px_rgba(0,229,255,0.12)]',
+              'hover:border-oz-border hover:shadow-[0_2px_12px_rgba(0,0,0,0.10)]',
               'hover:scale-105 active:scale-95',
               'transition-all duration-200'
             )}
           >
             <MessageCircle className="h-5 w-5 text-oz-text-2" strokeWidth={1.5} />
-            {/* Live pulse dot */}
-            <span className="absolute top-0.5 right-0.5 h-3 w-3 rounded-full bg-oz-black border-2 border-oz-black flex items-center justify-center">
-              <span className="h-1.5 w-1.5 rounded-full bg-oz-cyan animate-status-pulse" />
+            {/* Static live dot — no pulse */}
+            <span className="absolute top-0.5 right-0.5 h-3 w-3 rounded-full bg-oz-white border-2 border-oz-white flex items-center justify-center">
+              <span className="h-1.5 w-1.5 rounded-full bg-oz-green" />
             </span>
           </button>
         </div>
       )}
 
-      {/* ── Chat Panel (open state) ──────────────────────────────────────── */}
+      {/* ── Chat Panel ──────────────────────────────────────────────────── */}
       {isOpen && (
         <div
           role="dialog"
           aria-labelledby="uzo-title"
           className={cn(
             'fixed z-50 flex flex-col',
-            'bg-oz-black-2 border border-oz-border',
-            'shadow-[0_0_0_1px_rgba(0,229,255,0.06),0_32px_64px_rgba(0,0,0,0.7)]',
-            // Desktop: anchored above FAB
+            'bg-oz-white border border-oz-border',
+            'shadow-[0_8px_40px_rgba(0,0,0,0.12)]',
             'sm:bottom-6 sm:right-6 sm:w-[380px] sm:h-[500px] sm:rounded-sm',
-            // Mobile: full-screen bottom sheet
             'max-sm:bottom-0 max-sm:right-0 max-sm:w-full max-sm:h-[100dvh] max-sm:rounded-none',
-            // Spring open animation
             'animate-chat-open',
           )}
           style={{ overscrollBehavior: 'contain' }}
         >
           {/* Header */}
-          <div className="shrink-0 flex items-center justify-between px-4 py-3 border-b border-oz-border bg-oz-surface">
+          <div className="shrink-0 flex items-center justify-between px-4 py-3 border-b border-oz-border bg-oz-off-white">
             <div className="flex items-center gap-2.5">
-              <span className="h-2 w-2 rounded-full bg-oz-green animate-status-pulse" />
+              {/* Static green dot */}
+              <span className="h-2 w-2 rounded-full bg-oz-green" />
               <span id="uzo-title" className="font-mono text-sm text-oz-text tracking-widest uppercase">
                 Uzo
               </span>
@@ -203,14 +253,17 @@ export function OzoneAI() {
             <button
               onClick={() => setOpen(false)}
               aria-label="Close chat"
-              className="h-8 w-8 flex items-center justify-center text-oz-text-3 hover:text-oz-text hover:bg-oz-black rounded-sm transition-all duration-150"
+              className="h-8 w-8 flex items-center justify-center text-oz-text-3 hover:text-oz-text hover:bg-oz-surface rounded-sm transition-all duration-150"
             >
               <X className="h-4 w-4" />
             </button>
           </div>
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-4 no-scrollbar">
+          <div className="relative flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-4 no-scrollbar">
+            <div className="absolute inset-0 opacity-[1.2] pointer-events-none">
+              <ChatBlueprintBG />
+            </div>
             {messages.map((msg) => (
               <div
                 key={msg.id}
@@ -222,12 +275,12 @@ export function OzoneAI() {
                 <div className={cn(
                   'px-3 py-2.5 rounded-sm font-mono text-sm leading-relaxed',
                   msg.role === 'user'
-                    ? 'bg-oz-cyan-dim border border-oz-cyan/20 text-oz-cyan'
-                    : 'bg-oz-surface-2 border border-oz-border text-oz-text-2'
+                    ? 'bg-oz-red-dim border border-oz-red-border text-oz-red'
+                    : 'bg-oz-surface border border-oz-border text-oz-text-2'
                 )}>
                   {msg.content}
                   {msg.isPartial && (
-                    <span className="inline-block w-1.5 h-3.5 ml-0.5 bg-oz-cyan/60 align-middle animate-cursor" />
+                    <span className="inline-block w-1.5 h-3.5 ml-0.5 bg-oz-red/50 align-middle animate-pulse" />
                   )}
                 </div>
                 <span className="font-mono text-2xs text-oz-text-3 px-1">
@@ -236,13 +289,13 @@ export function OzoneAI() {
               </div>
             ))}
 
-            {/* Typing indicator while streaming with no content yet */}
+            {/* Typing indicator */}
             {isStreaming && messages.at(-1)?.content === '' && (
-              <div className="self-start flex items-center gap-1 px-3 py-2.5 bg-oz-surface-2 border border-oz-border rounded-sm">
+              <div className="self-start flex items-center gap-1 px-3 py-2.5 bg-oz-surface border border-oz-border rounded-sm">
                 {[0, 1, 2].map((i) => (
                   <span
                     key={i}
-                    className="h-1 w-1 rounded-full bg-oz-cyan/60 animate-bounce"
+                    className="h-1 w-1 rounded-full bg-oz-text-3/60 animate-bounce"
                     style={{ animationDelay: `${i * 0.15}s` }}
                   />
                 ))}
@@ -277,7 +330,7 @@ export function OzoneAI() {
               className={cn(
                 'h-9 w-9 flex items-center justify-center rounded-sm transition-all duration-200',
                 input.trim() && !isStreaming
-                  ? 'text-oz-cyan hover:bg-oz-cyan-dim'
+                  ? 'text-oz-red hover:bg-oz-red-dim'
                   : 'text-oz-text-3/30 cursor-not-allowed'
               )}
             >

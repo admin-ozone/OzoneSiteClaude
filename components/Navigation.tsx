@@ -3,7 +3,7 @@
 /**
  * NAVIGATION — Ozone Labs
  * ─────────────────────────────────────────────────────────────────────────────
- * Sticky top nav. Always visible (border + bg applied from mount).
+ * Sticky top nav. White background, subtle border.
  * Glassmorphism on scroll. Mobile full-screen drawer.
  * ─────────────────────────────────────────────────────────────────────────────
  */
@@ -33,7 +33,6 @@ export function Navigation() {
 
   useEffect(() => { setOpen(false); }, [pathname]);
 
-  // Lock body scroll when drawer is open
   useEffect(() => {
     document.body.style.overflow = open ? 'hidden' : '';
     return () => { document.body.style.overflow = ''; };
@@ -47,10 +46,9 @@ export function Navigation() {
           'fixed top-0 inset-x-0 z-50',
           'border-b transition-all duration-300',
         )}
-        // Inline styles guarantee visibility regardless of Tailwind v4 config resolution
         style={{
-          borderBottomColor: scrolled ? 'rgba(30, 30, 40, 0.8)' : '#1e1e28',
-          backgroundColor:   scrolled ? 'rgba(5, 5, 7, 0.85)'   : '#050507',
+          borderBottomColor: '#DEDAD4',
+          backgroundColor:   scrolled ? 'rgba(255,255,255,0.88)' : '#FFFFFF',
           backdropFilter:    scrolled ? 'blur(16px)'             : 'none',
           WebkitBackdropFilter: scrolled ? 'blur(16px)'          : 'none',
         }}
@@ -63,15 +61,15 @@ export function Navigation() {
             className="group font-mono text-sm font-bold tracking-[0.2em] uppercase shrink-0"
           >
             <span
-              className="transition-colors duration-200 group-hover:text-white"
-              style={{ color: '#00E5FF' }}
+              className="transition-colors duration-200"
+              style={{ color: '#FF3428' }}
             >
               OZ
             </span>
-            <span style={{ color: '#2a2a38', margin: '0 6px' }}>/</span>
+            <span style={{ color: '#C8C4BE', margin: '0 6px' }}>/</span>
             <span
-              className="transition-colors duration-200 group-hover:text-oz-cyan"
-              style={{ color: '#f0f0f4' }}
+              className="transition-colors duration-200 group-hover:text-oz-red"
+              style={{ color: '#111110' }}
             >
               LABS
             </span>
@@ -89,13 +87,13 @@ export function Navigation() {
                     'font-mono text-xs tracking-[0.15em] uppercase px-4 py-2 rounded-sm',
                     'transition-all duration-150',
                     active
-                      ? 'text-oz-cyan bg-oz-cyan-dim'
-                      : 'text-oz-text-2 hover:text-oz-text hover:bg-oz-surface',
+                      ? 'text-oz-red bg-oz-red-dim'
+                      : 'text-oz-text-3 hover:text-oz-text-2 hover:bg-oz-surface',
                   )}
                   style={
                     active
-                      ? { color: '#00E5FF', backgroundColor: 'rgba(0,229,255,0.08)' }
-                      : { color: '#9898b0' }
+                      ? { color: '#FF3428', backgroundColor: 'rgba(255,52,40,0.08)' }
+                      : { color: '#7A7873' }
                   }
                 >
                   {label}
@@ -109,9 +107,9 @@ export function Navigation() {
             <Link
               href="/auth/login"
               className="font-mono text-xs tracking-widest uppercase px-3 py-2 transition-colors duration-150"
-              style={{ color: '#52526a' }}
-              onMouseEnter={e => (e.currentTarget.style.color = '#9898b0')}
-              onMouseLeave={e => (e.currentTarget.style.color = '#52526a')}
+              style={{ color: '#B0ADA8' }}
+              onMouseEnter={e => (e.currentTarget.style.color = '#7A7873')}
+              onMouseLeave={e => (e.currentTarget.style.color = '#B0ADA8')}
             >
               Portal
             </Link>
@@ -119,16 +117,14 @@ export function Navigation() {
               href="mailto:founders@ozbuilts.com"
               className="font-mono text-xs tracking-widest uppercase font-bold px-5 py-2.5 rounded-sm transition-all duration-150"
               style={{
-                backgroundColor: '#00E5FF',
-                color:           '#050507',
+                backgroundColor: '#FF3428',
+                color:           '#FFFFFF',
               }}
               onMouseEnter={e => {
-                (e.currentTarget as HTMLAnchorElement).style.backgroundColor = '#ffffff';
-                (e.currentTarget as HTMLAnchorElement).style.boxShadow = '0 0 24px rgba(0,229,255,0.4)';
+                (e.currentTarget as HTMLAnchorElement).style.backgroundColor = '#E02D22';
               }}
               onMouseLeave={e => {
-                (e.currentTarget as HTMLAnchorElement).style.backgroundColor = '#00E5FF';
-                (e.currentTarget as HTMLAnchorElement).style.boxShadow = 'none';
+                (e.currentTarget as HTMLAnchorElement).style.backgroundColor = '#FF3428';
               }}
             >
               Get in Touch
@@ -138,7 +134,7 @@ export function Navigation() {
           {/* Mobile hamburger */}
           <button
             className="md:hidden flex flex-col justify-center gap-[5px] p-2 transition-colors duration-200"
-            style={{ color: open ? '#00E5FF' : '#9898b0' }}
+            style={{ color: open ? '#FF3428' : '#7A7873' }}
             onClick={() => setOpen(o => !o)}
             aria-label={open ? 'Close menu' : 'Open menu'}
             aria-expanded={open}
@@ -163,11 +159,11 @@ export function Navigation() {
       <div
         className="fixed inset-0 z-40 md:hidden transition-all duration-300"
         style={{
-          backgroundColor:   'rgba(5,5,7,0.98)',
-          backdropFilter:    'blur(8px)',
+          backgroundColor:      'rgba(255,255,255,0.98)',
+          backdropFilter:       'blur(8px)',
           WebkitBackdropFilter: 'blur(8px)',
-          opacity:          open ? 1 : 0,
-          pointerEvents:    open ? 'auto' : 'none',
+          opacity:              open ? 1 : 0,
+          pointerEvents:        open ? 'auto' : 'none',
         }}
         aria-hidden={!open}
       >
@@ -181,13 +177,13 @@ export function Navigation() {
                 href={href}
                 className="font-display text-4xl font-bold uppercase tracking-tight transition-all duration-200"
                 style={{
-                  color:            '#52526a',
-                  opacity:          open ? 1 : 0,
-                  transform:        open ? 'translateY(0)' : 'translateY(24px)',
-                  transitionDelay:  open ? `${i * 70 + 80}ms` : '0ms',
+                  color:           '#C8C4BE',
+                  opacity:         open ? 1 : 0,
+                  transform:       open ? 'translateY(0)' : 'translateY(24px)',
+                  transitionDelay: open ? `${i * 70 + 80}ms` : '0ms',
                 }}
-                onMouseEnter={e => (e.currentTarget.style.color = '#00E5FF')}
-                onMouseLeave={e => (e.currentTarget.style.color = '#52526a')}
+                onMouseEnter={e => (e.currentTarget.style.color = '#FF3428')}
+                onMouseLeave={e => (e.currentTarget.style.color = '#C8C4BE')}
               >
                 {label}
               </Link>
@@ -207,14 +203,14 @@ export function Navigation() {
             <a
               href="mailto:founders@ozbuilts.com"
               className="w-full text-center font-mono text-sm tracking-widest uppercase font-bold py-4 rounded-sm transition-colors duration-150"
-              style={{ backgroundColor: '#00E5FF', color: '#050507' }}
+              style={{ backgroundColor: '#FF3428', color: '#FFFFFF' }}
             >
               Get in Touch
             </a>
             <Link
               href="/auth/login"
               className="w-full text-center font-mono text-xs tracking-widest uppercase py-3 transition-colors duration-150"
-              style={{ color: '#52526a' }}
+              style={{ color: '#B0ADA8' }}
             >
               Client Portal →
             </Link>

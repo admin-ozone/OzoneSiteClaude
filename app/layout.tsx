@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Syne, Space_Mono } from 'next/font/google';
 import { GeistSans } from 'geist/font/sans';
-import './globals.css'; 
+import './globals.css';
 
 // ─── Typography ───────────────────────────────────────────────────────────────
 
@@ -31,19 +31,19 @@ export const metadata: Metadata = {
 
   description:
     'We build production-ready AI Assistants, Bot Infrastructure, and Web Applications. ' +
-    'Trilingual (English, Roman Urdu, Urdu). Zero-cost LLM architecture.',
+    'Zero-cost LLM architecture.',
 
   keywords: [
     'AI Assistant', 'WhatsApp Bot', 'Islamabad', 'Pakistan',
-    'Next.js Agency', 'Bot Infrastructure', 'RAG', 'Gemini API',
+    'Next.js Agency', 'Bot Infrastructure', 'RAG',
   ],
 
-  authors: [{ name: 'Ozone Labs', url: 'https://ozonelabs.io' }],
+  authors: [{ name: 'Ozone Labs', url: 'https://ozbuilts.com' }],
 
   openGraph: {
     type:        'website',
     locale:      'en_US',
-    url:         'https://ozonelabs.io',
+    url:         'https://ozbuilts.com',
     siteName:    'Ozone Labs',
     title:       'Ozone Labs — AI Infrastructure for Local Business',
     description: 'Production-ready AI Assistants, Bot Infrastructure, and Web Applications.',
@@ -51,10 +51,10 @@ export const metadata: Metadata = {
   },
 
   twitter: {
-    card:    'summary_large_image',
-    title:   'Ozone Labs',
+    card:        'summary_large_image',
+    title:       'Ozone Labs',
     description: 'AI Infrastructure for Local Business',
-    images:  ['/og-image.png'],
+    images:      ['/og-image.png'],
   },
 
   robots: {
@@ -73,9 +73,9 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor:     '#050507',
-  width:          'device-width',
-  initialScale:   1,
+  themeColor:   '#FFFFFF',
+  width:        'device-width',
+  initialScale: 1,
 };
 
 // ─── Root Layout ──────────────────────────────────────────────────────────────
@@ -91,7 +91,7 @@ export default function RootLayout({
       className={`${syne.variable} ${spaceMono.variable} ${GeistSans.variable}`}
       suppressHydrationWarning
     >
-      <body className="bg-oz-black font-sans text-oz-text antialiased selection:bg-oz-cyan-dim selection:text-oz-cyan">
+      <body className="bg-oz-white font-sans text-oz-text antialiased selection:bg-oz-red-dim selection:text-oz-red">
         {children}
       </body>
     </html>

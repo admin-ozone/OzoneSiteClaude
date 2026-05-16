@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { Navigation } from '@/components/Navigation';
 import { OzoneAI } from '@/components/chat/OzoneAI';
@@ -13,9 +13,9 @@ const SERVICES = [
     id:      'assistant',
     index:   '01',
     title:   'Assistant Forge',
-    tagline: "AI that speaks your customer's language",
-    desc:    'Custom AI assistants built on RAG pipelines and agentic workflows. Deployed on WhatsApp Business, web widgets, and Telegram. Fully trilingual — English, Roman Urdu, Urdu — because your market deserves it.',
-    tags:    ['Gemini 2.0', 'RAG', 'WhatsApp API', 'Agentic', 'Trilingual'],
+    tagline: 'AI that speaks your customer\'s language',
+    desc:    'Custom AI assistants built on RAG pipelines and agentic workflows. Deployed on WhatsApp Business, web widgets, and Telegram. Built for the market you\'re actually serving.',
+    tags:    ['RAG', 'WhatsApp API', 'Agentic', 'Custom LLM'],
     large:   true,
   },
   {
@@ -23,7 +23,7 @@ const SERVICES = [
     index:   '02',
     title:   'Bot Infrastructure',
     tagline: 'Automation at production scale',
-    desc:    "WhatsApp automation, Puppeteer browser bots, proxy rotation, and stealth fingerprinting. Custom webhook architecture that doesn't break.",
+    desc:    'WhatsApp automation, Puppeteer browser bots, proxy rotation, and stealth fingerprinting. Custom webhook architecture that doesn\'t break.',
     tags:    ['whatsapp-web.js', 'Puppeteer', 'p-queue', 'Proxy'],
     large:   false,
   },
@@ -48,65 +48,33 @@ const SERVICES = [
 ] as const;
 
 const STATS = [
-  { value: '9',    suffix: '+', label: 'AI Models'        },
-  { value: '3',    suffix: '',  label: 'Languages'         },
-  { value: '$0',   suffix: '',  label: 'LLM Cost at Scale' },
-  { value: '99.9', suffix: '%', label: 'Uptime SLA'        },
-] as const;
-
-// Editorial hero stat cards
-const HERO_CARDS = [
-  {
-    metric: '9',
-    unit:   'models',
-    label:  'multi-provider fallback chain',
-    sub:    'Gemini · Groq · OpenRouter',
-    rotate: '1deg',
-  },
-  {
-    metric: '$0',
-    unit:   'LLM cost',
-    label:  'free-tier architecture',
-    sub:    'at production scale',
-    rotate: '-1.5deg',
-  },
-  {
-    metric: '3',
-    unit:   'languages',
-    label:  'trilingual AI, natively',
-    sub:    'EN · Roman Urdu · اردو',
-    rotate: '1.5deg',
-  },
-  {
-    metric: '<800',
-    unit:   'ms',
-    label:  'average response latency',
-    sub:    'edge-streamed tokens',
-    rotate: '-1deg',
-  },
+  { value: '48',   suffix: 'h',  label: 'First delivery'   },
+  { value: '100',  suffix: '%',  label: 'Source ownership'  },
+  { value: '99.9', suffix: '%',  label: 'Uptime SLA'        },
+  { value: '24',   suffix: 'h',  label: 'Response time'     },
 ] as const;
 
 const PROCESS = [
   {
     step:  '01',
     title: 'Scope & Spec',
-    desc:  "We map your requirements with ruthless precision. Fixed deliverables, fixed timelines, zero upsells. You know exactly what you're getting before we write a line of code.",
+    desc:  'We map your requirements with ruthless precision. Fixed deliverables, fixed timelines, zero upsells. You know exactly what you\'re getting before we write a line of code.',
   },
   {
     step:  '02',
     title: 'Build in Public',
-    desc:  "Production-grade code from day one. You see progress every 48 hours — live demos, not status updates. We move fast without cutting corners.",
+    desc:  'Production-grade code from day one. You see progress every 48 hours — live demos, not status updates. We move fast without cutting corners.',
   },
   {
     step:  '03',
     title: 'Deploy & Hand Off',
-    desc:  "Live on Vercel, DigitalOcean, or your infra. Full documentation, source access, no black boxes. You own everything we build.",
+    desc:  'Live on Vercel, DigitalOcean, or your infra. Full documentation, source access, no black boxes. You own everything we build.',
   },
 ] as const;
 
 const STACK = [
   'Next.js 15', 'React 19', 'TypeScript', 'Tailwind 4',
-  'Gemini 2.0', 'Groq Llama', 'OpenRouter',
+  'RAG Pipelines', 'Agentic Workflows',
   'Prisma ORM', 'Supabase', 'Vercel',
   'WhatsApp API', 'Puppeteer',
   'Three.js', 'WebGL', 'React Native',
@@ -132,13 +100,128 @@ function useInView(threshold = 0.15) {
   return { ref, visible };
 }
 
+// ─── Blueprint SVG — hero right column ────────────────────────────────────────
+
+function BlueprintSVG() {
+  return (
+    <svg
+      viewBox="0 0 480 400"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className="w-full h-auto opacity-0 animate-[fade-in_0.8s_0.3s_ease-out_forwards]"
+      style={{ animation: 'fadeIn 0.8s 0.3s ease-out forwards', opacity: 0 }}
+      aria-hidden="true"
+    >
+      <style>{`@keyframes fadeIn { to { opacity: 1; } }`}</style>
+
+      {/* ── Outer boundary ── */}
+      <rect x="24" y="24" width="432" height="352" stroke="#DEDAD4" strokeWidth="0.75" />
+
+      {/* ── Corner ticks ── */}
+      {/* top-left */}
+      <line x1="24" y1="14" x2="24" y2="34"  stroke="#C8C4BE" strokeWidth="0.75" />
+      <line x1="14" y1="24" x2="34" y2="24"  stroke="#C8C4BE" strokeWidth="0.75" />
+      {/* top-right */}
+      <line x1="456" y1="14" x2="456" y2="34"  stroke="#C8C4BE" strokeWidth="0.75" />
+      <line x1="446" y1="24" x2="466" y2="24"  stroke="#C8C4BE" strokeWidth="0.75" />
+      {/* bottom-left */}
+      <line x1="24" y1="366" x2="24" y2="386"  stroke="#C8C4BE" strokeWidth="0.75" />
+      <line x1="14" y1="376" x2="34" y2="376"  stroke="#C8C4BE" strokeWidth="0.75" />
+      {/* bottom-right */}
+      <line x1="456" y1="366" x2="456" y2="386"  stroke="#C8C4BE" strokeWidth="0.75" />
+      <line x1="446" y1="376" x2="466" y2="376"  stroke="#C8C4BE" strokeWidth="0.75" />
+
+      {/* ── Internal grid lines ── */}
+      <line x1="24"  y1="130" x2="456" y2="130" stroke="#DEDAD4" strokeWidth="0.5" strokeDasharray="4 6" />
+      <line x1="24"  y1="270" x2="456" y2="270" stroke="#DEDAD4" strokeWidth="0.5" strokeDasharray="4 6" />
+      <line x1="180" y1="24"  x2="180" y2="376" stroke="#DEDAD4" strokeWidth="0.5" strokeDasharray="4 6" />
+      <line x1="340" y1="24"  x2="340" y2="376" stroke="#DEDAD4" strokeWidth="0.5" strokeDasharray="4 6" />
+
+      {/* ── Module A — top-left block ── */}
+      <rect x="44"  y="44" width="116" height="66" stroke="#C8C4BE" strokeWidth="0.75" />
+      <text x="52" y="73" fontFamily="'Space Mono', monospace" fontSize="8" fill="#B0ADA8" letterSpacing="0.08em">MODULE_A</text>
+      <text x="52" y="87" fontFamily="'Space Mono', monospace" fontSize="7" fill="#DEDAD4" letterSpacing="0.06em">INGESTION</text>
+
+      {/* ── Core — center block (accent) ── */}
+      <rect x="200" y="148" width="120" height="102" stroke="#FF3428" strokeWidth="1" />
+      {/* Red fill accent — very light */}
+      <rect x="200" y="148" width="120" height="102" fill="rgba(255,52,40,0.04)" />
+      <text x="260" y="196" fontFamily="'Space Mono', monospace" fontSize="9" fill="#FF3428" letterSpacing="0.1em" textAnchor="middle">CORE</text>
+      <text x="260" y="211" fontFamily="'Space Mono', monospace" fontSize="7" fill="rgba(255,52,40,0.5)" letterSpacing="0.08em" textAnchor="middle">ORCHESTRATOR</text>
+      {/* Red corner dot */}
+      <circle cx="200" cy="148" r="3" fill="#FF3428" />
+
+      {/* ── API block — top-right ── */}
+      <rect x="360" y="44" width="76" height="56" stroke="#C8C4BE" strokeWidth="0.75" />
+      <text x="398" y="70" fontFamily="'Space Mono', monospace" fontSize="8" fill="#B0ADA8" letterSpacing="0.08em" textAnchor="middle">API</text>
+      <text x="398" y="84" fontFamily="'Space Mono', monospace" fontSize="7" fill="#DEDAD4" letterSpacing="0.06em" textAnchor="middle">LAYER</text>
+
+      {/* ── Output block — bottom-right ── */}
+      <rect x="360" y="290" width="76" height="56" stroke="#C8C4BE" strokeWidth="0.75" />
+      <text x="398" y="316" fontFamily="'Space Mono', monospace" fontSize="8" fill="#B0ADA8" letterSpacing="0.08em" textAnchor="middle">OUTPUT</text>
+      <text x="398" y="330" fontFamily="'Space Mono', monospace" fontSize="7" fill="#DEDAD4" letterSpacing="0.06em" textAnchor="middle">WEBHOOK</text>
+
+      {/* ── Storage block — bottom-left ── */}
+      <rect x="44" y="290" width="116" height="56" stroke="#C8C4BE" strokeWidth="0.75" />
+      <text x="102" y="316" fontFamily="'Space Mono', monospace" fontSize="8" fill="#B0ADA8" letterSpacing="0.08em" textAnchor="middle">STORAGE</text>
+      <text x="102" y="330" fontFamily="'Space Mono', monospace" fontSize="7" fill="#DEDAD4" letterSpacing="0.06em" textAnchor="middle">VECTOR + SQL</text>
+
+      {/* ── Connector lines ── */}
+      {/* MODULE_A → CORE */}
+      <line x1="160" y1="77" x2="200" y2="199" stroke="#DEDAD4" strokeWidth="0.75" />
+      <circle cx="160" cy="77"  r="2" fill="#C8C4BE" />
+      <circle cx="200" cy="199" r="2" fill="#C8C4BE" />
+
+      {/* API → CORE */}
+      <line x1="360" y1="72" x2="320" y2="175" stroke="#DEDAD4" strokeWidth="0.75" />
+      <circle cx="360" cy="72"  r="2" fill="#C8C4BE" />
+      <circle cx="320" cy="175" r="2" fill="#C8C4BE" />
+
+      {/* CORE → OUTPUT */}
+      <line x1="320" y1="220" x2="360" y2="305" stroke="#DEDAD4" strokeWidth="0.75" />
+      <circle cx="320" cy="220" r="2" fill="#C8C4BE" />
+      <circle cx="360" cy="305" r="2" fill="#C8C4BE" />
+
+      {/* CORE → STORAGE */}
+      <line x1="200" y1="230" x2="160" y2="305" stroke="#DEDAD4" strokeWidth="0.75" />
+      <circle cx="200" cy="230" r="2" fill="#C8C4BE" />
+      <circle cx="160" cy="305" r="2" fill="#C8C4BE" />
+
+      {/* ── Dimension line — horizontal ── */}
+      <line x1="44"  y1="12" x2="180" y2="12" stroke="#DEDAD4" strokeWidth="0.5" />
+      <line x1="44"  y1="8"  x2="44"  y2="16" stroke="#DEDAD4" strokeWidth="0.5" />
+      <line x1="180" y1="8"  x2="180" y2="16" stroke="#DEDAD4" strokeWidth="0.5" />
+      <text x="112" y="10" fontFamily="'Space Mono', monospace" fontSize="6" fill="#DEDAD4" letterSpacing="0.06em" textAnchor="middle">136px</text>
+
+      {/* ── Dimension line — vertical ── */}
+      <line x1="472" y1="148" x2="472" y2="250" stroke="#DEDAD4" strokeWidth="0.5" />
+      <line x1="468" y1="148" x2="476" y2="148" stroke="#DEDAD4" strokeWidth="0.5" />
+      <line x1="468" y1="250" x2="476" y2="250" stroke="#DEDAD4" strokeWidth="0.5" />
+      <text
+        x="478" y="202"
+        fontFamily="'Space Mono', monospace"
+        fontSize="6"
+        fill="#DEDAD4"
+        letterSpacing="0.06em"
+        textAnchor="middle"
+        transform="rotate(90, 478, 202)"
+      >
+        102px
+      </text>
+
+      {/* ── Reference label ── */}
+      <text x="456" y="390" fontFamily="'Space Mono', monospace" fontSize="6" fill="#DEDAD4" letterSpacing="0.08em" textAnchor="end">OZ-ARCH-v2.4</text>
+    </svg>
+  );
+}
+
 // ─── Sub-Components ────────────────────────────────────────────────────────────
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex items-center gap-3 mb-6">
-      <span className="h-px w-8 bg-oz-cyan/50" />
-      <span className="font-mono text-xs text-oz-cyan tracking-[0.2em] uppercase">{children}</span>
+      <span className="h-px w-8 bg-oz-red/40" />
+      <span className="font-mono text-xs text-oz-red tracking-[0.2em] uppercase">{children}</span>
     </div>
   );
 }
@@ -150,25 +233,21 @@ function ServiceCard({ svc, delay = 0 }: { svc: typeof SERVICES[number]; delay?:
     <div
       ref={ref}
       className={cn(
-        'group relative border border-oz-border bg-oz-surface rounded-sm overflow-hidden h-full',
+        'group relative border border-oz-border bg-oz-white rounded-sm overflow-hidden h-full',
         'transition-all duration-500',
-        'hover:border-oz-cyan/30 hover:shadow-[0_0_40px_rgba(0,229,255,0.07)]',
+        'hover:border-oz-border-2 hover:shadow-[0_2px_16px_rgba(0,0,0,0.06)]',
         visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8',
       )}
       style={{ transitionDelay: visible ? `${delay}ms` : '0ms' }}
     >
-      {/* Top accent line */}
-      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-oz-cyan/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-
-      {/* Hover glow */}
-      <div className="absolute inset-0 bg-gradient-to-br from-oz-cyan/[0.03] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+      {/* Top hairline */}
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-oz-border-2 to-transparent" />
 
       <div className={cn('relative z-10 flex flex-col h-full', svc.large ? 'p-10 gap-6' : 'p-7 gap-4')}>
         {/* Index + arrow */}
         <div className="flex items-center justify-between">
-          <span className="font-mono text-xs text-oz-text-3 tracking-widest">{svc.index}</span>
-          {/* Arrow nudges right on hover */}
-          <span className="font-mono text-oz-text-3/30 group-hover:text-oz-cyan/50 transition-all duration-150 group-hover:translate-x-1">
+          <span className="font-mono text-xs text-oz-muted tracking-widest">{svc.index}</span>
+          <span className="font-mono text-oz-muted/50 group-hover:text-oz-text-3 transition-all duration-150 group-hover:translate-x-1">
             →
           </span>
         </div>
@@ -181,7 +260,7 @@ function ServiceCard({ svc, delay = 0 }: { svc: typeof SERVICES[number]; delay?:
           )}>
             {svc.title}
           </h3>
-          <p className={cn('font-mono text-oz-cyan', svc.large ? 'text-sm' : 'text-xs')}>
+          <p className={cn('font-mono text-oz-red', svc.large ? 'text-sm' : 'text-xs')}>
             {svc.tagline}
           </p>
         </div>
@@ -196,7 +275,7 @@ function ServiceCard({ svc, delay = 0 }: { svc: typeof SERVICES[number]; delay?:
           {svc.tags.map((tag) => (
             <span
               key={tag}
-              className="font-mono text-2xs px-2.5 py-1 border border-oz-border-2 text-oz-text-3 rounded-sm tracking-wider group-hover:border-oz-cyan/20 group-hover:text-oz-text-2 transition-colors duration-300"
+              className="font-mono text-2xs px-2.5 py-1 border border-oz-border text-oz-text-3 rounded-sm tracking-wider group-hover:border-oz-border-2 group-hover:text-oz-text-2 transition-colors duration-300"
             >
               {tag}
             </span>
@@ -210,90 +289,28 @@ function ServiceCard({ svc, delay = 0 }: { svc: typeof SERVICES[number]; delay?:
 // ─── Page ──────────────────────────────────────────────────────────────────────
 
 export default function HomePage() {
-  const [mounted, setMounted]         = useState(false);
-  const [scrollPct, setScrollPct]     = useState(0);
-  const [cursorPos, setCursorPos]     = useState({ x: -1000, y: -1000 });
-  const [reducedMotion, setReducedMotion] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   const statsView   = useInView(0.2);
   const processView = useInView(0.1);
-  const heroCards   = useInView(0.1);
 
-  useEffect(() => {
-    setMounted(true);
-    setReducedMotion(window.matchMedia('(prefers-reduced-motion: reduce)').matches);
-  }, []);
-
-  // Scroll progress bar
-  useEffect(() => {
-    if (reducedMotion) return;
-    const onScroll = () => {
-      const el  = document.documentElement;
-      const pct = el.scrollTop / (el.scrollHeight - el.clientHeight);
-      setScrollPct(Math.min(1, Math.max(0, pct)));
-    };
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, [reducedMotion]);
-
-  // Cursor glow
-  const onMouseMove = useCallback((e: MouseEvent) => {
-    setCursorPos({ x: e.clientX, y: e.clientY });
-  }, []);
-
-  useEffect(() => {
-    if (reducedMotion) return;
-    window.addEventListener('mousemove', onMouseMove, { passive: true });
-    return () => window.removeEventListener('mousemove', onMouseMove);
-  }, [reducedMotion, onMouseMove]);
+  useEffect(() => { setMounted(true); }, []);
 
   return (
     <>
-      {/* ── Scroll progress bar ────────────────────────────────────────────── */}
-      <div
-        className="fixed top-0 left-0 z-[100] h-px bg-oz-cyan pointer-events-none transition-none"
-        style={{ width: `${scrollPct * 100}%` }}
-      />
-
-      {/* ── Cursor glow (desktop only, media:hover) ─────────────────────── */}
-      {mounted && (
-        <div
-          className="fixed pointer-events-none z-0 hidden lg:block"
-          style={{
-            width:      400,
-            height:     400,
-            top:        cursorPos.y - 200,
-            left:       cursorPos.x - 200,
-            background: 'radial-gradient(circle, rgba(0,229,255,0.03) 0%, transparent 70%)',
-            transition: 'top 0ms, left 0ms',
-          }}
-        />
-      )}
-
       <Navigation />
 
-      <main className="bg-oz-black overflow-x-hidden">
+      <main className="bg-oz-white overflow-x-hidden">
 
         {/* ── HERO ─────────────────────────────────────────────────────────── */}
         <section className="relative min-h-screen flex flex-col justify-center pt-24 pb-16 overflow-hidden">
-          <div className="absolute inset-0 bg-grid opacity-40 pointer-events-none" />
-          <div
-            className="absolute inset-0 pointer-events-none"
-            style={{ background: 'radial-gradient(ellipse 80% 60% at 50% -10%, rgba(0,229,255,0.07) 0%, transparent 70%)' }}
-          />
+          <div className="absolute inset-0 bg-grid opacity-100 pointer-events-none" />
 
           <div className="relative z-10 max-w-7xl mx-auto px-6 w-full">
             <div className="grid lg:grid-cols-2 gap-16 items-center">
 
               {/* Left — copy */}
               <div>
-                <div className="inline-flex items-center gap-2 border border-oz-border bg-oz-surface rounded-sm px-4 py-2 mb-10">
-                  <span className="h-1.5 w-1.5 rounded-full bg-oz-green animate-status-pulse" />
-                  <span className="font-mono text-xs text-oz-text-2 tracking-[0.15em] uppercase">
-                    Islamabad, Pakistan — Est. 2024
-                  </span>
-                </div>
-
                 <h1 className="font-display font-bold tracking-tight leading-[1.0] mb-8">
                   <span className="block text-oz-text" style={{ fontSize: 'clamp(2.75rem, 6vw, 5.5rem)' }}>
                     We build
@@ -302,7 +319,7 @@ export default function HomePage() {
                     className="block"
                     style={{
                       fontSize:             'clamp(2.75rem, 6vw, 5.5rem)',
-                      background:           'linear-gradient(135deg, #00E5FF 0%, rgba(0,229,255,0.5) 100%)',
+                      background:           'linear-gradient(135deg, #FF3428 0%, rgba(255,52,40,0.55) 100%)',
                       WebkitBackgroundClip: 'text',
                       WebkitTextFillColor:  'transparent',
                       backgroundClip:       'text',
@@ -323,12 +340,11 @@ export default function HomePage() {
 
                 <div className="flex flex-wrap items-center gap-4">
                   <a
-                    href="mailto:founders@ozonelabs.io"
+                    href="mailto:founders@ozbuilts.com"
                     className={cn(
                       'inline-flex items-center gap-2 font-mono text-sm tracking-widest uppercase font-bold',
-                      'bg-oz-cyan text-oz-black px-8 py-4 rounded-sm',
-                      'hover:bg-white transition-all duration-200',
-                      'hover:shadow-[0_0_40px_rgba(0,229,255,0.5)]',
+                      'bg-oz-red text-white px-8 py-4 rounded-sm',
+                      'hover:bg-[#E02D22] transition-colors duration-200',
                     )}
                   >
                     Start a Project
@@ -336,97 +352,60 @@ export default function HomePage() {
                       <path d="M2 7h10M8 3l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                   </a>
-                  <Link
-                    href="/transparency"
-                    className="inline-flex items-center gap-2 font-mono text-sm tracking-widest uppercase text-oz-text-2 hover:text-oz-cyan transition-colors duration-200 px-2 py-4"
+                  {/*<Link
+                    href="/#services"
+                    className="font-mono text-sm tracking-widest uppercase text-oz-text-3 hover:text-oz-text-2 transition-colors duration-150 px-4 py-4"
                   >
-                    <span className="h-1.5 w-1.5 rounded-full bg-oz-green animate-status-pulse" />
-                    System Status
-                  </Link>
+                    See our work
+                  </Link> */}
                 </div>
 
-                {/* Stats strip */}
+                {/* Headline stats — clean, no inflated metrics */}
                 <div className="flex items-center gap-6 mt-14 pt-10 border-t border-oz-border">
-                  {STATS.slice(0, 3).map((s) => (
-                    <div key={s.label}>
-                      <p className="font-display text-2xl font-bold text-oz-text">
-                        {s.value}<span className="text-oz-cyan">{s.suffix}</span>
-                      </p>
-                      <p className="font-mono text-2xs text-oz-text-3 tracking-widest uppercase mt-0.5">
-                        {s.label}
-                      </p>
-                    </div>
-                  ))}
+                  <div>
+                    <p className="font-display text-2xl font-bold text-oz-text">
+                      48<span className="text-oz-red">h</span>
+                    </p>
+                    <p className="font-mono text-2xs text-oz-text-3 tracking-widest uppercase mt-0.5">
+                      First delivery
+                    </p>
+                  </div>
+                  <div>
+                    <p className="font-display text-2xl font-bold text-oz-text">
+                      100<span className="text-oz-red">%</span>
+                    </p>
+                    <p className="font-mono text-2xs text-oz-text-3 tracking-widest uppercase mt-0.5">
+                      Source ownership
+                    </p>
+                  </div>
+                  <div>
+                    <p className="font-display text-2xl font-bold text-oz-text">
+                      99.9<span className="text-oz-red">%</span>
+                    </p>
+                    <p className="font-mono text-2xs text-oz-text-3 tracking-widest uppercase mt-0.5">
+                      Uptime SLA
+                    </p>
+                  </div>
                 </div>
               </div>
 
-              {/* Right — editorial stats cluster */}
-              <div ref={heroCards.ref} className="relative hidden lg:block">
-                {/* Glow backdrop */}
-                <div
-                  className="absolute -inset-8 pointer-events-none"
-                  style={{ background: 'radial-gradient(ellipse 80% 80% at 50% 50%, rgba(0,229,255,0.05) 0%, transparent 70%)' }}
-                />
-
-                {/* 2×2 grid, cards slightly rotated */}
-                <div className="relative grid grid-cols-2 gap-4 p-4">
-                  {HERO_CARDS.map((card, i) => (
-                    <div
-                      key={i}
-                      className={cn(
-                        'group border border-oz-border bg-oz-surface rounded-sm p-6 flex flex-col gap-3',
-                        'transition-all duration-200 cursor-default',
-                        'hover:border-oz-cyan/30 hover:shadow-[0_0_30px_rgba(0,229,255,0.08)]',
-                        heroCards.visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6',
-                      )}
-                      style={{
-                        transform:       heroCards.visible ? `rotate(${card.rotate})` : 'translateY(24px)',
-                        transitionDelay: heroCards.visible ? `${i * 80}ms` : '0ms',
-                        // Straighten on hover via CSS group
-                      }}
-                      onMouseEnter={(e) => {
-                        (e.currentTarget as HTMLElement).style.transform = 'rotate(0deg)';
-                      }}
-                      onMouseLeave={(e) => {
-                        (e.currentTarget as HTMLElement).style.transform = `rotate(${card.rotate})`;
-                      }}
-                    >
-                      {/* Metric */}
-                      <div className="flex items-baseline gap-1.5">
-                        <span className="font-display text-3xl font-bold text-oz-cyan leading-none">
-                          {card.metric}
-                        </span>
-                        <span className="font-mono text-xs text-oz-text-3 tracking-wider">
-                          {card.unit}
-                        </span>
-                      </div>
-
-                      {/* Label */}
-                      <p className="font-mono text-xs text-oz-text-3 tracking-wider leading-relaxed">
-                        {card.label}
-                      </p>
-
-                      {/* Sub detail */}
-                      <p className="font-mono text-2xs text-oz-text-3/50 tracking-widest mt-auto pt-3 border-t border-oz-border">
-                        {card.sub}
-                      </p>
-                    </div>
-                  ))}
-                </div>
+              {/* Right — technical blueprint */}
+              <div className="relative hidden lg:block">
+                <BlueprintSVG />
               </div>
 
             </div>
           </div>
 
           {/* Scroll hint */}
-          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-40">
+          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-30">
             <span className="font-mono text-2xs text-oz-text-3 tracking-widest uppercase">Scroll</span>
             <div className="h-8 w-px bg-gradient-to-b from-oz-text-3 to-transparent" />
           </div>
         </section>
 
         {/* ── SERVICES ─────────────────────────────────────────────────────── */}
-        <section id="services" className="relative py-32">
+        <section id="services" className="relative py-32 border-t border-oz-border">
           <div className="max-w-7xl mx-auto px-6">
             <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-16">
               <div>
@@ -434,7 +413,7 @@ export default function HomePage() {
                 <h2 className="font-display text-5xl font-bold text-oz-text tracking-tight">
                   Four practices.<br />
                   <span style={{
-                    background:           'linear-gradient(135deg, #00E5FF 0%, rgba(0,229,255,0.5) 100%)',
+                    background:           'linear-gradient(135deg, #FF3428 0%, rgba(255,52,40,0.55) 100%)',
                     WebkitBackgroundClip: 'text',
                     WebkitTextFillColor:  'transparent',
                     backgroundClip:       'text',
@@ -459,7 +438,7 @@ export default function HomePage() {
                 <ServiceCard svc={SERVICES[1]} delay={100} />
               </div>
 
-              {/* Row 2: card 3 (1 col) + card 4 (1 col) + $0 highlight (1 col) */}
+              {/* Row 2: card 3, card 4, architecture highlight */}
               <div className="min-h-[280px]">
                 <ServiceCard svc={SERVICES[2]} delay={150} />
               </div>
@@ -467,24 +446,21 @@ export default function HomePage() {
                 <ServiceCard svc={SERVICES[3]} delay={200} />
               </div>
 
-              {/* $0 LLM highlight card */}
-              <div className="group relative border border-oz-cyan/20 bg-gradient-to-br from-oz-cyan-dim to-transparent rounded-sm overflow-hidden min-h-[280px]">
-                <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-oz-cyan/50 to-transparent" />
+              {/* Architecture principle card */}
+              <div className="group relative border border-oz-border bg-oz-surface rounded-sm overflow-hidden min-h-[280px] hover:border-oz-border-2 hover:shadow-[0_2px_16px_rgba(0,0,0,0.06)] transition-all duration-300">
+                <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-oz-border-2 to-transparent" />
                 <div className="p-7 h-full flex flex-col justify-between">
-                  <span className="font-mono text-2xs text-oz-cyan/60 tracking-widest uppercase">Architecture</span>
+                  <span className="font-mono text-2xs text-oz-text-3 tracking-widest uppercase">Principle</span>
                   <div>
-                    <p className="font-display text-4xl font-bold text-oz-cyan mb-1">$0</p>
-                    <p className="font-mono text-xs text-oz-text-3 tracking-wider mb-3">LLM cost at scale</p>
-                    <p className="text-oz-text-2 text-sm leading-relaxed">
-                      9 models. 3 providers. Automatic failover. Zero vendor lock-in.
+                    <p className="font-display text-3xl font-bold text-oz-text mb-2 leading-tight">
+                      Built for<br />scale.
                     </p>
-                    <div className="flex flex-wrap gap-2 mt-4">
-                      {['Gemini', 'Groq', 'OpenRouter'].map((t) => (
-                        <span key={t} className="font-mono text-2xs px-2 py-0.5 border border-oz-cyan/20 text-oz-cyan/60 rounded-sm tracking-wider">
-                          {t}
-                        </span>
-                      ))}
-                    </div>
+                    <p className="font-mono text-xs text-oz-text-3 tracking-wider mb-3">
+                      Engineered to last.
+                    </p>
+                    <p className="text-oz-text-2 text-sm leading-relaxed">
+                      Resilient architecture, automatic failover, zero vendor lock-in. You own the stack.
+                    </p>
                   </div>
                 </div>
               </div>
@@ -494,7 +470,7 @@ export default function HomePage() {
         </section>
 
         {/* ── STATS STRIP ──────────────────────────────────────────────────── */}
-        <section className="border-y border-oz-border bg-oz-surface/30 py-16">
+        <section className="border-y border-oz-border bg-oz-surface py-16">
           <div ref={statsView.ref} className="max-w-7xl mx-auto px-6">
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
               {STATS.map((s, i) => (
@@ -507,7 +483,7 @@ export default function HomePage() {
                   style={{ transitionDelay: statsView.visible ? `${i * 100}ms` : '0ms' }}
                 >
                   <p className="font-display font-bold text-oz-text" style={{ fontSize: 'clamp(2.5rem, 4vw, 3.5rem)' }}>
-                    {s.value}<span className="text-oz-cyan">{s.suffix}</span>
+                    {s.value}<span className="text-oz-red">{s.suffix}</span>
                   </p>
                   <p className="font-mono text-xs text-oz-text-3 tracking-widest uppercase mt-2">{s.label}</p>
                 </div>
@@ -518,11 +494,11 @@ export default function HomePage() {
 
         {/* ── HOW WE WORK ──────────────────────────────────────────────────── */}
         <section id="work" className="relative py-32 overflow-hidden">
-          <div className="absolute inset-0 bg-grid opacity-20 pointer-events-none" />
+          <div className="absolute inset-0 bg-grid opacity-100 pointer-events-none" />
           <div className="relative z-10 max-w-7xl mx-auto px-6">
             <SectionLabel>Process</SectionLabel>
             <h2 className="font-display text-5xl font-bold text-oz-text tracking-tight mb-20">
-              How we work<span className="text-oz-cyan">.</span>
+              How we work<span className="text-oz-red">.</span>
             </h2>
 
             <div ref={processView.ref} className="grid md:grid-cols-3 gap-0 relative">
@@ -537,8 +513,8 @@ export default function HomePage() {
                   )}
                   style={{ transitionDelay: processView.visible ? `${i * 150}ms` : '0ms' }}
                 >
-                  <div className="relative z-10 inline-flex items-center justify-center w-14 h-14 border border-oz-border bg-oz-black rounded-sm mb-6">
-                    <span className="font-mono text-sm text-oz-cyan tracking-widest">{p.step}</span>
+                  <div className="relative z-10 inline-flex items-center justify-center w-14 h-14 border border-oz-border bg-oz-white rounded-sm mb-6">
+                    <span className="font-mono text-sm text-oz-red tracking-widest">{p.step}</span>
                   </div>
                   <h3 className="font-display text-2xl font-bold text-oz-text mb-4">{p.title}</h3>
                   <p className="text-oz-text-2 leading-relaxed">{p.desc}</p>
@@ -553,19 +529,19 @@ export default function HomePage() {
           <div className="max-w-7xl mx-auto px-6 mb-12">
             <SectionLabel>Technology</SectionLabel>
             <h2 className="font-display text-4xl font-bold text-oz-text tracking-tight">
-              Built on what actually works<span className="text-oz-cyan">.</span>
+              Built on what actually works<span className="text-oz-red">.</span>
             </h2>
           </div>
 
           <div className="relative">
-            <div className="absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-oz-black to-transparent z-10 pointer-events-none" />
-            <div className="absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-oz-black to-transparent z-10 pointer-events-none" />
+            <div className="absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-oz-white to-transparent z-10 pointer-events-none" />
+            <div className="absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-oz-white to-transparent z-10 pointer-events-none" />
             <div className="flex overflow-hidden">
               <div className="flex gap-3 shrink-0 pr-3" style={{ animation: 'ticker 25s linear infinite' }}>
                 {[...STACK, ...STACK].map((tech, i) => (
                   <span
                     key={i}
-                    className="shrink-0 font-mono text-sm px-5 py-2.5 border border-oz-border-2 bg-oz-surface text-oz-text-2 rounded-sm tracking-wider whitespace-nowrap hover:border-oz-cyan/30 hover:text-oz-cyan transition-colors duration-200 cursor-default"
+                    className="shrink-0 font-mono text-sm px-5 py-2.5 border border-oz-border bg-oz-white text-oz-text-2 rounded-sm tracking-wider whitespace-nowrap hover:border-oz-border-2 hover:text-oz-text transition-colors duration-200 cursor-default"
                   >
                     {tech}
                   </span>
@@ -578,9 +554,6 @@ export default function HomePage() {
             @keyframes ticker {
               0%   { transform: translateX(0); }
               100% { transform: translateX(-50%); }
-            }
-            @media (prefers-reduced-motion: reduce) {
-              .animate-status-pulse { animation: none; }
             }
           `}</style>
         </section>
@@ -595,7 +568,7 @@ export default function HomePage() {
                   If something breaks, you'll know before we do.
                 </h3>
                 <p className="text-oz-text-2 leading-relaxed max-w-lg">
-                  Real-time system status for all infrastructure. We publish it publicly because we believe trust is built in public.
+                  Real-time system status for all infrastructure. Published publicly because trust is built in public.
                 </p>
               </div>
               <Link
@@ -605,7 +578,7 @@ export default function HomePage() {
                   'font-mono text-sm tracking-widest uppercase',
                   'border border-oz-border-2 text-oz-text-2',
                   'px-8 py-4 rounded-sm',
-                  'hover:border-oz-cyan hover:text-oz-cyan hover:shadow-oz',
+                  'hover:border-oz-text-3 hover:text-oz-text',
                   'transition-all duration-200',
                 )}
               >
@@ -619,15 +592,11 @@ export default function HomePage() {
         </section>
 
         {/* ── CTA ──────────────────────────────────────────────────────────── */}
-        <section className="relative py-40 overflow-hidden">
-          <div className="absolute inset-0 bg-grid opacity-30 pointer-events-none" />
-          <div
-            className="absolute inset-0 pointer-events-none"
-            style={{ background: 'radial-gradient(ellipse 60% 60% at 50% 100%, rgba(0,229,255,0.08) 0%, transparent 70%)' }}
-          />
+        <section className="relative py-40 overflow-hidden bg-oz-surface">
+          <div className="absolute inset-0 bg-grid opacity-100 pointer-events-none" />
 
           <div className="relative z-10 max-w-5xl mx-auto px-6 text-center">
-            <p className="font-mono text-xs text-oz-cyan tracking-[0.3em] uppercase mb-8">
+            <p className="font-mono text-xs text-oz-red tracking-[0.3em] uppercase mb-8">
               Let's work together
             </p>
             <h2
@@ -641,16 +610,16 @@ export default function HomePage() {
               Drop us a line and we'll respond within 24 hours — usually much less.
             </p>
 
-            <a href="mailto:founders@ozonelabs.io" className="group inline-flex items-center gap-4">
+            <a href="mailto:founders@ozbuilts.com" className="group inline-flex items-center gap-4">
               <span
-                className="font-display font-bold text-oz-text group-hover:text-oz-cyan transition-colors duration-300"
+                className="font-display font-bold text-oz-text group-hover:text-oz-red transition-colors duration-300"
                 style={{ fontSize: 'clamp(1.5rem, 4vw, 2.5rem)' }}
               >
-                founders@ozonelabs.io
+                founders@ozbuilts.com
               </span>
               <svg
                 width="32" height="32" viewBox="0 0 32 32" fill="none"
-                className="text-oz-cyan group-hover:translate-x-2 transition-transform duration-300"
+                className="text-oz-red group-hover:translate-x-2 transition-transform duration-300"
               >
                 <path d="M6 16h20M18 8l8 8-8 8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
@@ -659,36 +628,36 @@ export default function HomePage() {
             <div className="flex items-center justify-center gap-6 mt-16">
               <span className="font-mono text-xs text-oz-text-3 tracking-widest uppercase">Or find us at</span>
               <a
-                href="https://instagram.com/ozonelabs"
+                href="https://instagram.com/ozbuilts"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-mono text-sm text-oz-text-2 hover:text-oz-cyan transition-colors tracking-wider"
+                className="font-mono text-sm text-oz-text-2 hover:text-oz-red transition-colors tracking-wider"
               >
-                @ozonelabs
+                @ozbuilts
               </a>
             </div>
           </div>
         </section>
 
         {/* ── FOOTER ───────────────────────────────────────────────────────── */}
-        <footer className="border-t border-oz-border py-10">
+        <footer className="border-t border-oz-border bg-oz-off-white py-10">
           <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
             <Link href="/" className="font-mono text-sm font-bold tracking-[0.2em] uppercase">
-              <span className="text-oz-cyan">OZ</span>
+              <span style={{ color: '#FF3428' }}>OZ</span>
               <span className="text-oz-border-2 mx-1.5">/</span>
-              <span className="text-oz-text">LABS</span>
+              <span className="text-oz-text-2">LABS</span>
             </Link>
             <p className="font-mono text-xs text-oz-text-3 tracking-wider" suppressHydrationWarning>
               © {new Date().getFullYear()} Ozone Labs — Islamabad, Pakistan
             </p>
             <div className="flex items-center gap-6">
-              <Link href="/transparency" className="font-mono text-xs text-oz-text-3 hover:text-oz-cyan transition-colors tracking-wider">
+              <Link href="/transparency" className="font-mono text-xs text-oz-text-3 hover:text-oz-text transition-colors tracking-wider">
                 Status
               </Link>
-              <Link href="/auth/login" className="font-mono text-xs text-oz-text-3 hover:text-oz-cyan transition-colors tracking-wider">
+              <Link href="/auth/login" className="font-mono text-xs text-oz-text-3 hover:text-oz-text transition-colors tracking-wider">
                 Portal
               </Link>
-              <a href="mailto:founders@ozonelabs.io" className="font-mono text-xs text-oz-text-3 hover:text-oz-cyan transition-colors tracking-wider">
+              <a href="mailto:founders@ozbuilts.com" className="font-mono text-xs text-oz-text-3 hover:text-oz-text transition-colors tracking-wider">
                 Contact
               </a>
             </div>
