@@ -62,7 +62,7 @@ function ChatBlueprintBG() {
       aria-hidden="true"
     >
       {/* ── Radial rings — like a signal/radar ── */}
-      <circle cx="190" cy="260" r="60"  stroke="#DEDAD4" strokeWidth="0.5" />
+      <circle cx="190" cy="260" r="60"  stroke="#ded4d4" strokeWidth="0.5" />
       <circle cx="190" cy="260" r="110" stroke="#DEDAD4" strokeWidth="0.5" />
       <circle cx="190" cy="260" r="160" stroke="#DEDAD4" strokeWidth="0.5" />
       <circle cx="190" cy="260" r="215" stroke="#DEDAD4" strokeWidth="0.5" />
